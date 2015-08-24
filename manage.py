@@ -6,8 +6,7 @@ from __future__ import (
 
 import os.path as p
 
-from subprocess import call
-from pprint import pprint
+from subprocess import call, check_call
 
 from flask import current_app as app
 from flask.ext.script import Manager
@@ -53,7 +52,8 @@ def deploy():
 @manager.command
 def deployprod():
     """Deploy production app"""
-    check_call('heroku keys:add ~/.ssh/id_rsa.pub --remote production', shell=True)
+    check_call(
+        'heroku keys:add ~/.ssh/id_rsa.pub --remote production', shell=True)
     check_call('git push origin master', shell=True)
 
 
@@ -89,15 +89,6 @@ def cleardb():
     with app.app_context():
         db.drop_all()
         print('Database cleared')
-
-
-@manager.command
-def resetdb():
-    """Removes all content from database and creates new tables"""
-
-    with app.app_context():
-        cleardb()
-        createdb()
 
 
 @manager.command

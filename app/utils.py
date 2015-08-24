@@ -9,7 +9,8 @@ from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals)
 
-from json import JSONEncoder
+from json import dumps, JSONEncoder
+from flask import make_response, request
 
 
 class CustomEncoder(JSONEncoder):

@@ -15,11 +15,6 @@ from __future__ import (
 
 from future.builtins import str
 
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urllib import unquote
-
 import config
 
 from functools import partial
@@ -29,7 +24,7 @@ from os import getenv
 from savalidation import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from flask import Flask, redirect, url_for
+from flask import Flask
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.restless import APIManager
@@ -68,7 +63,7 @@ def create_app(config_mode=None, config_file=None):
     app = Flask(__name__)
     app.register_blueprint(blueprint)
     db.init_app(app)
-    cors = CORS(app)
+    CORS(app)
     compress.init_app(app)
     cache_config = {}
 

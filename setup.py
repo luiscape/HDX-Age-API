@@ -3,9 +3,9 @@
 
 import sys
 import re
-import HDX-Age-API
+import app
 
-from os import system, path as p
+from os import path as p
 
 try:
     from setuptools import setup, find_packages
@@ -65,8 +65,8 @@ requirements = parse_requirements('requirements.txt')
 dependencies = list(parse_requirements('requirements.txt', dep=True))
 readme = read('README.rst')
 changes = read('CHANGES.rst').replace('.. :changelog:', '')
-license = HDX-Age-API.__license__
-version = HDX-Age-API.__version__
+license = app.__license__
+version = app.__version__
 
 classifier = {
     'GPL': 'GNU General Public License (GPL)',
@@ -75,14 +75,14 @@ classifier = {
 }
 
 setup(
-    name=HDX-Age-API.__title__,
+    name=app.__title__,
     version=version,
-    description=HDX-Age-API.__description__,
+    description=app.__description__,
     long_description=readme + '\n\n' + changes,
-    author=HDX-Age-API.__author__,
-    author_email=HDX-Age-API.__email__,
+    author=app.__author__,
+    author_email=app.__email__,
     url='https://github.com/reubano/HDX-Age-API',
-    download_url='https://github.com/reubano/HDX-Age-API/archive/v%sHDX-Age-API*.tar.gz' % version,
+    download_url='https://github.com/reubano/HDX-Age-API/archive/v%s/HDX-Age-API*.tar.gz' % version,
     packages=find_packages(exclude=['docs', 'tests']),
     include_package_data=True,
     install_requires=requirements,
@@ -90,7 +90,7 @@ setup(
     tests_require=['nose', 'scripttest'],
     license=license,
     zip_safe=False,
-    keywords=HDX-Age-API.__title__,
+    keywords=app.__title__,
     package_data={},
     classifiers=[
         'Development Status :: 4 - Beta',

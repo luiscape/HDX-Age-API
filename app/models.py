@@ -11,8 +11,7 @@ from __future__ import (
 
 import savalidation.validators as val
 
-from pprint import pprint
-from datetime import datetime as dt, date as d
+from datetime import datetime as dt
 from savalidation import ValidationMixin
 
 from app import db
