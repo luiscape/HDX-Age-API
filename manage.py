@@ -9,14 +9,16 @@ import os.path as p
 from subprocess import call, check_call
 
 from flask import current_app as app
-from flask.ext.script import Manager
+from flask.ext.script import Server, Manager
 
+from config import Config as c
 from app import create_app, db
 
 manager = Manager(create_app)
 manager.add_option(
     '-m', '--cfgmode', dest='config_mode', default='Development')
 manager.add_option('-f', '--cfgfile', dest='config_file', type=p.abspath)
+manager.add_command('runserver', Server(port=c.PORT))
 manager.main = manager.run
 
 
