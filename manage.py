@@ -59,19 +59,19 @@ def deployprod():
     check_call('git push origin master', shell=True)
 
 
-@manager.option('-r', '--requirement', help='Requirement file', default='test')
+@manager.option('-r', '--requirement', help='Requirement file', default=None)
 def pipme(requirement):
     """Install requirements.txt"""
-    call('pippy -r requirements/%s.txt' % requirement, shell=True)
+    prefix = '%s-' % requirement if requirement else ''
+    call('pippy -r %srequirements.txt' % prefix, shell=True)
 
 
 @manager.command
 def require():
     """Create requirements.txt"""
-    cmd = 'pip freeze -l | grep -vxFf requirements/dev.txt '
-    cmd += '| grep -vxFf requirements/prod.txt '
-    cmd += '| grep -vxFf requirements/test.txt '
-    cmd += '> requirements/common.txt'
+    cmd = 'pip freeze -l | grep -vxFf dev-requirements.txt '
+    cmd += '| grep -vxFf prod-requirements.txt '
+    cmd += '> requirements.txt'
     call(cmd, shell=True)
 
 
