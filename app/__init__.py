@@ -40,7 +40,6 @@ API_EXCEPTIONS = [
 
 db = SQLAlchemy()
 cache = Cache()
-compress = Compress()
 
 __title__ = 'HDX-Age-API'
 __author__ = 'Reuben Cummings'
@@ -64,7 +63,7 @@ def create_app(config_mode=None, config_file=None):
     app.register_blueprint(blueprint)
     db.init_app(app)
     CORS(app)
-    compress.init_app(app)
+    Compress(app)
     cache_config = {}
 
     # Create the Flask-Restless API manager.

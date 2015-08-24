@@ -15,7 +15,7 @@ from loremipsum import get_sentences
 
 from config import Config as c
 from app import cache
-from .utils import jsonify, make_cache_key
+from app.utils import jsonify, make_cache_key
 from app.connection import conn
 
 q = Queue(connection=conn)
