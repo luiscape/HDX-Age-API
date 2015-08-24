@@ -10,17 +10,21 @@ from __future__ import (
     unicode_literals)
 
 from flask import Blueprint, request
-from redis import Redis
 from rq import Queue
 from loremipsum import get_sentences
 
 from config import Config as c
 from app import cache
 from .utils import jsonify, make_cache_key
+from app.connection import conn
 
-q = Queue('high', connection=Redis())
+q = Queue(connection=conn)
 blueprint = Blueprint('blueprint', __name__)
 cache_timeout = 60 * 60 * 1  # hours (in seconds)
+
+
+def expensive_func(x):
+    return pow(x, 100)
 
 
 # endpoints
@@ -32,18 +36,17 @@ def lorem():
 
 
 @blueprint.route('%s/expensive/' % c.API_URL_PREFIX)
-@cache.cached(timeout=cache_timeout)
 def expensive():
-    expensive_func = lambda x: pow(x, 100)
     job = q.enqueue(expensive_func, 10)
-    kwargs = {'status': job.get_status(), 'id': job.id, 'result': job.result}
+    kwargs = {'job_id': job.id}
     return jsonify(**kwargs)
 
 
-@blueprint.route('%s/status/<jid>/' % c.API_URL_PREFIX)
-def status(jid):
+@blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
+def result(jid):
     job = q.fetch_job(jid)
-    kwargs = {'status': job.get_status(), 'id': job.id, 'result': job.result}
+    kwargs = {
+        'job_status': job.get_status(), 'job_id': job.id, 'result': job.result}
     return jsonify(**kwargs)
 
 
