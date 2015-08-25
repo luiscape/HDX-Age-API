@@ -58,12 +58,8 @@ def _get_tables():
 def create_app(config_mode=None, config_file=None):
     app = Flask(__name__)
     app.register_blueprint(blueprint)
-    db.init_app(app)
-    CORS(app)
-    Compress(app)
-    cache_config = {}
-
     mgr = APIManager(app, flask_sqlalchemy_db=db)
+    cache_config = {}
 
     if config_mode:
         app.config.from_object(getattr(config, config_mode))
@@ -84,6 +80,9 @@ def create_app(config_mode=None, config_file=None):
         cache_config['CACHE_TYPE'] = 'simple'
 
     cache.init_app(app, config=cache_config)
+    db.init_app(app)
+    CORS(app)
+    Compress(app)
 
     @app.route('/')
     def home():
