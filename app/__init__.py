@@ -32,8 +32,6 @@ from flask.ext.cache import Cache
 from flask.ext.compress import Compress
 from flask.ext.cors import CORS
 
-# from pprint import pprint
-
 API_EXCEPTIONS = [
     ValidationError, ValueError, AttributeError, TypeError, IntegrityError,
     OperationalError]
@@ -58,7 +56,6 @@ def _get_tables():
 
 
 def create_app(config_mode=None, config_file=None):
-    # Create webapp instance
     app = Flask(__name__)
     app.register_blueprint(blueprint)
     db.init_app(app)
@@ -66,7 +63,6 @@ def create_app(config_mode=None, config_file=None):
     Compress(app)
     cache_config = {}
 
-    # Create the Flask-Restless API manager.
     mgr = APIManager(app, flask_sqlalchemy_db=db)
 
     if config_mode:
