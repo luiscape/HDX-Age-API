@@ -88,6 +88,7 @@ setup(
     install_requires=requirements,
     dependency_links=dependencies,
     tests_require=['nose', 'scripttest'],
+    test_suite='tests',
     license=license,
     zip_safe=False,
     keywords=app.__title__,
