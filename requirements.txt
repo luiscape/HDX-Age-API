@@ -10,4 +10,5 @@ future==0.15.0
 loremipsum==1.0.5
 redis==2.10.3
 rq==0.4.6
-ckanutils==0.11.3
+rq-dashboard==0.3.4
+ckanutils==0.11.4
