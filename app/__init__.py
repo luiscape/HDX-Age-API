@@ -91,7 +91,7 @@ def create_app(config_mode=None, config_file=None):
 
     @app.route('/')
     def home():
-        return 'Welcome to the Prometheus API!'
+        return 'Welcome to the HDX Age API!'
 
     kwargs = {
         'methods': app.config['API_METHODS'],
@@ -101,7 +101,7 @@ def create_app(config_mode=None, config_file=None):
         'max_results_per_page': app.config['API_MAX_RESULTS_PER_PAGE'],
         'url_prefix': app.config['API_URL_PREFIX']}
 
-    # Create API endpoints (available at /api/<tablename>)
+    # Create API endpoints (available at /<tablename>)
     create_api = partial(mgr.create_api, **kwargs)
 
     with app.app_context():
