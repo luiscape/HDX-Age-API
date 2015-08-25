@@ -19,6 +19,7 @@ manager.add_option(
     '-m', '--cfgmode', dest='config_mode', default='Development')
 manager.add_option('-f', '--cfgfile', dest='config_file', type=p.abspath)
 manager.add_command('runserver', Server(port=c.PORT))
+manager.add_command('serve', Server(port=c.PORT))
 manager.main = manager.run
 
 
