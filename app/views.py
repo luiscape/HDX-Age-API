@@ -131,15 +131,15 @@ def expensive_func(x):
 @blueprint.route('%s/lorem/' % c.API_URL_PREFIX)
 @cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
 def lorem():
-    kwargs = {'result': get_sentences(1)[0]}
-    return jsonify(**kwargs)
+    resp = {'result': get_sentences(1)[0]}
+    return jsonify(**resp)
 
 
 @blueprint.route('%s/expensive/' % c.API_URL_PREFIX)
 def expensive():
     job = q.enqueue(expensive_func, 10)
-    kwargs = {'job_id': job.id}
-    return jsonify(**kwargs)
+    resp = {'job_id': job.id}
+    return jsonify(**resp)
 
 
 @blueprint.route('%s/update/' % c.API_URL_PREFIX)
