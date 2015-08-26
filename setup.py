@@ -32,7 +32,9 @@ def parse_requirements(filename, parent=None, dep=False):
         candidate = line.strip()
 
         if candidate.startswith('-r'):
-            for item in parse_requirements(candidate[2:].strip(), filepath, dep):
+            args = [candidate[2:].strip(), filepath, dep]
+
+            for item in parse_requirements(*args):
                 yield item
         elif not dep and '#egg=' in candidate:
             yield re.sub('.*#egg=(.*)-(.*)', r'\1==\2', candidate)
@@ -67,6 +69,8 @@ readme = read('README.rst')
 changes = read('CHANGES.rst').replace('.. :changelog:', '')
 license = app.__license__
 version = app.__version__
+title = app.__title__
+url = 'https://github.com/reubano/%s' % title
 
 classifier = {
     'GPL': 'GNU General Public License (GPL)',
@@ -75,14 +79,14 @@ classifier = {
 }
 
 setup(
-    name=app.__title__,
+    name=title,
     version=version,
     description=app.__description__,
     long_description=readme + '\n\n' + changes,
     author=app.__author__,
     author_email=app.__email__,
-    url='https://github.com/reubano/HDX-Age-API',
-    download_url='https://github.com/reubano/HDX-Age-API/archive/v%s/HDX-Age-API*.tar.gz' % version,
+    url=url,
+    download_url='%s/archive/v%s/%s*.tar.gz' % (url, version, title),
     packages=find_packages(exclude=['docs', 'tests']),
     include_package_data=True,
     install_requires=requirements,
