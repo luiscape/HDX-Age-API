@@ -9,112 +9,25 @@ from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals)
 
-import itertools as it
-
-from datetime import datetime as dt
-from bisect import bisect
-from operator import itemgetter
-from functools import partial
-from random import choice
-
 from flask import Blueprint, request
 from rq import Queue
 from loremipsum import get_sentences
 from ckanutils import CKAN
-from tabutils import process as tup
 
 from config import Config as c
-from app import cache, __version__, db
-from app.utils import jsonify, make_cache_key, parse, count_words_at_url
+from app import cache, __version__, utils
+from app.utils import jsonify, make_cache_key, parse
 from app.connection import conn
-from app.models import Age
 
 q = Queue(connection=conn)
 blueprint = Blueprint('blueprint', __name__)
 cache_timeout = 60 * 60 * 1  # hours (in seconds)
 
-statuses = ['Up-to-date', 'Due for update', 'Overdue', 'Delinquent']
-
-breakpoints = {
-    0: [0, 0, 0],
-    1: [1, 2, 3],
-    7: [7, 14, 21],
-    14: [14, 21, 28],
-    30: [30, 44, 60],
-    90: [90, 120, 150],
-    180: [180, 210, 240],
-    365: [365, 425, 455],
-}
-
-categories = {
-    0: 'Archived',
-    1: 'Every day',
-    7: 'Every week',
-    14: 'Every two weeks',
-    30: 'Every month',
-    90: 'Every three months',
-    180: 'Every six months',
-    365: 'Every year',
-}
-
-
-def gen_data(ckan, pids):
-    for pid in pids:
-        package = ckan.package_show(id=pid)
-        # frequency = int(package['frequency'])
-        frequency = choice(breakpoints.keys())
-        breaks = breakpoints.get(frequency)
-        resources = package['resources']
-        last_updated = max(it.imap(ckan.get_update_date, resources))
-        age = dt.now() - last_updated
-
-        if breaks:
-            status = statuses[bisect(breaks, age.days)]
-        else:
-            status = 'Invalid frequency. Status could not be determined.'
-
-        data = {
-            'dataset_id': pid,
-            'dataset_name': package['name'],
-            'last_updated': last_updated,
-            'needs_update': status in statuses[1:],
-            'status': status,
-            'age': age.days,
-            'frequency': frequency,
-            'frequency_category': categories.get(frequency, 'N/A')
-        }
-
-        yield data
-
-
-def _update(ckan, chunk_size, pid):
-    if pid:
-        pids = [pid]
-    else:
-        org_show = partial(ckan.organization_show, include_datasets=True)
-        org_ids = it.imap(itemgetter('id'), ckan.get_all_orgs())
-        orgs = (org_show(id=org_id) for org_id in org_ids)
-        package_lists = it.imap(itemgetter('packages'), orgs)
-        pid_getter = partial(map, itemgetter('id'))
-        pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
-
-    data = gen_data(ckan, pids)
-    rows = 0
-
-    for records in tup.chunk(data, chunk_size):
-        result = db.engine.execute(Age.__table__.insert(), records)
-        rows += result.rowcount
-
-    return rows
-
-
-def expensive_func(x):
-    return pow(x, 100)
-
 
 @blueprint.route('%s/status/' % c.API_URL_PREFIX)
 @cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
-def status(**kwargs):
+def status():
+    kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     ckan = CKAN(**kwargs)
 
     resp = {
@@ -135,10 +48,24 @@ def lorem():
     return jsonify(**resp)
 
 
-@blueprint.route('%s/expensive/' % c.API_URL_PREFIX)
-def expensive():
-    job = q.enqueue(expensive_func, 10)
-    resp = {'job_id': job.id}
+@blueprint.route('%s/test/' % c.API_URL_PREFIX)
+@blueprint.route('%s/test/<word>/' % c.API_URL_PREFIX)
+def test(word=''):
+    kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
+    sync = kwargs.pop('sync', False)
+
+    if sync:
+        resp = {'result': utils.count_letters(word)}
+    else:
+        job = q.enqueue(utils.count_letters, word)
+        result_url = 'http://%s:%s%s/result/%s' % (
+            c.HOST, c.PORT, c.API_URL_PREFIX, job.id)
+
+        resp = {
+            'job_id': job.id,
+            'job_status': job.get_status(),
+            'result_url': result_url}
+
     return jsonify(**resp)
 
 
@@ -147,12 +74,16 @@ def expensive():
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     sync = kwargs.pop('sync', False)
-    chunk_size = int(kwargs.pop('chunk_size', 5000))
+
+    try:
+        chunk_size = int(kwargs.pop('chunk_size'))
+    except KeyError:
+        chunk_size = None
 
     if sync:
-        resp = {'result': count_words_at_url(pid, chunk_size)}
+        resp = {'result': utils.update(pid, chunk_size, **kwargs)}
     else:
-        job = q.enqueue(count_words_at_url, 'http://nvie.com')
+        job = q.enqueue(utils.update, pid, chunk_size, **kwargs)
         result_url = 'http://%s:%s%s/result/%s/' % (
             c.HOST, c.PORT, c.API_URL_PREFIX, job.id)
 
