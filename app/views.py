@@ -108,6 +108,10 @@ def _update(ckan, chunk_size, pid):
     return rows
 
 
+def expensive_func(x):
+    return pow(x, 100)
+
+
 @blueprint.route('%s/status/' % c.API_URL_PREFIX)
 @cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
 def status(**kwargs):
@@ -122,10 +126,6 @@ def status(**kwargs):
     }
 
     return jsonify(**resp)
-
-
-def expensive_func(x):
-    return pow(x, 100)
 
 
 @blueprint.route('%s/lorem/' % c.API_URL_PREFIX)
