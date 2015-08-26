@@ -3,7 +3,7 @@
     app.views
     ~~~~~~~~~
 
-    Provides additional api endpoints
+    Provides additional API endpoints
 """
 from __future__ import (
     absolute_import, division, print_function, with_statement,
@@ -27,7 +27,6 @@ def expensive_func(x):
     return pow(x, 100)
 
 
-# endpoints
 @blueprint.route('%s/lorem/' % c.API_URL_PREFIX)
 @cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
 def lorem():
