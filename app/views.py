@@ -73,19 +73,16 @@ def test(word=''):
 @blueprint.route('%s/update/<pid>/' % c.API_URL_PREFIX)
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
+    kwargs['pid'] = pid
     sync = kwargs.pop('sync', False)
-
-    try:
-        chunk_size = int(kwargs.pop('chunk_size'))
-    except KeyError:
-        chunk_size = None
+    base_url = 'http://%s:%s%s' % (c.HOST, c.PORT, c.API_URL_PREFIX)
+    endpoint = '%s/age' % base_url
 
     if sync:
-        resp = {'result': utils.update(pid, chunk_size, **kwargs)}
+        resp = {'result': utils.update(endpoint, **kwargs)}
     else:
-        job = q.enqueue(utils.update, pid, chunk_size, **kwargs)
-        result_url = 'http://%s:%s%s/result/%s/' % (
-            c.HOST, c.PORT, c.API_URL_PREFIX, job.id)
+        job = q.enqueue(utils.update, endpoint, **kwargs)
+        result_url = '%s/result/%s/' % (endpoint, job.id)
 
         resp = {
             'job_id': job.id,

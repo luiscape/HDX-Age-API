@@ -118,8 +118,16 @@ def gen_data(ckan, pids):
 
         yield data
 
+def_chunk_size = 1
+def_max_records = 3
 
-def update(pid=None, chunk_size=None, **kwargs):
+
+def update(endpoint, **kwargs):
+    pid = kwargs.pop('pid', None)
+    chunk_size = int(kwargs.pop('chunk_size', 0)) or def_chunk_size
+    max_records = int(kwargs.pop('max_records', 0)) or def_max_records
+    rows = 0
+
     ckan = CKAN(**kwargs)
 
     if pid:
@@ -133,13 +141,10 @@ def update(pid=None, chunk_size=None, **kwargs):
         pid_getter = partial(map, itemgetter('id'))
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
-    chunk_size = chunk_size or 1
-    base_url = 'http://localhost:3000/v1/age'
     data = gen_data(ckan, pids)
     headers = {'Content-Type': 'application/json'}
-    rows = 0
-    post = partial(requests.post, base_url, headers=headers)
     safe = []
+    post = partial(requests.post, endpoint, headers=headers)
 
     for records in tup.chunk(data, chunk_size):
         count = len(records)
@@ -148,7 +153,7 @@ def update(pid=None, chunk_size=None, **kwargs):
 
         rows += count
 
-        if rows >= 3:
+        if rows >= max_records:
             break
 
     return rows
