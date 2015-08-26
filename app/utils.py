@@ -107,7 +107,7 @@ def gen_data(ckan, pids):
             'dataset_id': package['id'],
             'dataset_name': package['name'],
             'dataset_title': package['title'],
-            'last_updated': str(last_updated),
+            'last_updated': last_updated.isoformat(),
             'needs_update': status in statuses[1:],
             'status': status,
             'age': int(age.days),
