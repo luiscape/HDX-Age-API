@@ -6,12 +6,15 @@
     Provides application unit tests
 """
 
-from sys import stderr
-
 from flask.json import loads, dumps
-from app import create_app, db
+from app import create_app
 
 initialized = False
+app = None
+client = None
+jsonx = None
+base = None
+endpoint = None
 
 
 def setup_package():
@@ -45,15 +48,11 @@ def teardown_package():
     print('Test Package Teardown\n')
 
 
-def get_globals():
-    global app
-    global client
-    global jsonx
-
-    return app, client, jsonx
-
-
 class APIHelper:
+    global client
+    global base
+    global endpoint
+
     json = 'application/json'
 
     def get_data(self, table, id=None, query=None):

@@ -6,18 +6,20 @@ from __future__ import (
 
 import os.path as p
 
-from subprocess import call
-from pprint import pprint
+from subprocess import call, check_call
 
 from flask import current_app as app
-from flask.ext.script import Manager
+from flask.ext.script import Server, Manager
 
+from config import Config as c
 from app import create_app, db
 
 manager = Manager(create_app)
 manager.add_option(
     '-m', '--cfgmode', dest='config_mode', default='Development')
 manager.add_option('-f', '--cfgfile', dest='config_file', type=p.abspath)
+manager.add_command('runserver', Server(port=c.PORT))
+manager.add_command('serve', Server(port=c.PORT))
 manager.main = manager.run
 
 
@@ -53,23 +55,24 @@ def deploy():
 @manager.command
 def deployprod():
     """Deploy production app"""
-    check_call('heroku keys:add ~/.ssh/id_rsa.pub --remote production', shell=True)
+    check_call(
+        'heroku keys:add ~/.ssh/id_rsa.pub --remote production', shell=True)
     check_call('git push origin master', shell=True)
 
 
-@manager.option('-r', '--requirement', help='Requirement file', default='test')
+@manager.option('-r', '--requirement', help='Requirement file', default=None)
 def pipme(requirement):
     """Install requirements.txt"""
-    call('pippy -r requirements/%s.txt' % requirement, shell=True)
+    prefix = '%s-' % requirement if requirement else ''
+    call('pippy -r %srequirements.txt' % prefix, shell=True)
 
 
 @manager.command
 def require():
     """Create requirements.txt"""
-    cmd = 'pip freeze -l | grep -vxFf requirements/dev.txt '
-    cmd += '| grep -vxFf requirements/prod.txt '
-    cmd += '| grep -vxFf requirements/test.txt '
-    cmd += '> requirements/common.txt'
+    cmd = 'pip freeze -l | grep -vxFf dev-requirements.txt '
+    cmd += '| grep -vxFf prod-requirements.txt '
+    cmd += '> requirements.txt'
     call(cmd, shell=True)
 
 
@@ -89,15 +92,6 @@ def cleardb():
     with app.app_context():
         db.drop_all()
         print('Database cleared')
-
-
-@manager.command
-def resetdb():
-    """Removes all content from database and creates new tables"""
-
-    with app.app_context():
-        cleardb()
-        createdb()
 
 
 @manager.command
