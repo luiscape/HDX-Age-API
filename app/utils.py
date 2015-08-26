@@ -9,8 +9,13 @@ from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals)
 
-from json import dumps, JSONEncoder
+from json import dumps, loads, JSONEncoder
+from ast import literal_eval
+
 from flask import make_response, request
+from ckanutils import CKAN
+
+encoding = 'utf8'
 
 
 class CustomEncoder(JSONEncoder):
@@ -33,3 +38,25 @@ def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
 
 def make_cache_key(*args, **kwargs):
     return request.url
+
+
+def parse(string):
+    string = string.encode(encoding)
+
+    if string.lower() in ('true', 'false'):
+        return loads(string.lower())
+    else:
+        try:
+            return literal_eval(string)
+        except (ValueError, SyntaxError):
+            return string
+
+
+def do_update(pid, chunk_size):
+    return _update(CKAN(**kwargs), chunk_size, pid)
+
+
+def count_words_at_url(url):
+    import requests
+    r = requests.get(url)
+    return len(r.text.split())
