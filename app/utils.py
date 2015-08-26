@@ -143,20 +143,21 @@ def update(endpoint, **kwargs):
 
     data = gen_data(ckan, pids)
     headers = {'Content-Type': 'application/json'}
-    safe = []
     post = partial(requests.post, endpoint, headers=headers)
+    errors = {}
 
     for records in tup.chunk(data, chunk_size):
-        count = len(records)
-        safe.extend(records)
-        [post(data=dumps(record)) for record in records]
+        rs = [post(data=dumps(record)) for record in records]
+        rows += len(filter(lambda r: r.ok, rs))
+        ids = map(itemgetter('dataset_id'), records)
 
-        rows += count
+        errors.update(
+            dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
 
         if rows >= max_records:
             break
 
-    return rows
+    return {'rows_added': rows, 'errors': errors}
 
 
 def count_letters(word=''):
