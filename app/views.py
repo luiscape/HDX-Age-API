@@ -45,24 +45,27 @@ def expensive():
 @blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
 def result(jid):
     job = q.fetch_job(jid)
-    kwargs = {
-        'job_status': job.get_status(), 'job_id': job.id, 'result': job.result}
-    return jsonify(**kwargs)
+
+    resp = {
+        'job_id': job.id,
+        'job_status': job.get_status(),
+        'rows_updated': job.result}
+
+    return jsonify(**resp)
 
 
 @blueprint.route('%s/double/<num>/' % c.API_URL_PREFIX)
 @cache.memoize(timeout=cache_timeout)
 def double(num):
-    kwargs = {'result': 2 * num}
-    return jsonify(**kwargs)
+    resp = {'result': 2 * num}
+    return jsonify(**resp)
 
 
 @blueprint.route('%s/delete/<base>/' % c.API_URL_PREFIX)
 def delete(base):
     url = request.url.replace('delete/', '')
     cache.delete(url)
-    kwargs = {'result': "Key: %s deleted" % url}
-    return jsonify(**kwargs)
+    return jsonify(result='Key: %s deleted' % url)
 
 
 @blueprint.route('%s/reset/' % c.API_URL_PREFIX)
