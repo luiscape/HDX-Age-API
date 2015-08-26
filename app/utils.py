@@ -22,6 +22,7 @@ from random import choice
 
 from flask import make_response, request
 from ckanutils import CKAN
+from tabutils import process as tup
 
 encoding = 'utf8'
 statuses = ['Up-to-date', 'Due for update', 'Overdue', 'Delinquent']
@@ -90,6 +91,10 @@ def gen_data(ckan, pids):
         frequency = choice(breakpoints.keys())
         breaks = breakpoints.get(frequency)
         resources = package['resources']
+
+        if not resources:
+            continue
+
         last_updated = max(it.imap(ckan.get_update_date, resources))
         age = dt.now() - last_updated
 
@@ -112,25 +117,39 @@ def gen_data(ckan, pids):
         yield data
 
 
-def update(pid, chunk_size=20, **kwargs):
+def update(pid, chunk_size=None, **kwargs):
     ckan = CKAN(**kwargs)
 
     if pid:
         pids = [pid]
     else:
         org_show = partial(ckan.organization_show, include_datasets=True)
-        org_ids = it.imap(itemgetter('id'), ckan.get_all_orgs())
+        orgs_basic = ckan.organization_list(permission='read')
+        org_ids = it.imap(itemgetter('id'), orgs_basic)
         orgs = (org_show(id=org_id) for org_id in org_ids)
         package_lists = it.imap(itemgetter('packages'), orgs)
         pid_getter = partial(map, itemgetter('id'))
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
+    chunk_size = chunk_size or 1
     base_url = 'http://localhost:3000/v1/age'
-    data = gen_data(ckan, pids).next()
+    data = gen_data(ckan, pids)
     headers = {'Content-Type': 'application/json'}
-    r = requests.post(base_url, data=dumps(data), headers=headers)
+    rows = 0
+    post = partial(requests.post, base_url, headers=headers)
+    safe = []
 
-    return r.json()
+    for records in tup.chunk(data, chunk_size):
+        count = len(records)
+        safe.extend(records)
+        [post(data=dumps(record)) for record in records]
+
+        rows += count
+
+        if rows >= 3:
+            break
+
+    return rows
 
 
 def count_letters(word=''):
