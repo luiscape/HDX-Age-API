@@ -159,7 +159,6 @@ def update(pid=None):
         resp = {
             'job_id': job.id,
             'job_status': job.get_status(),
-            'rows_updated': job.result,
             'result_url': result_url}
 
     return jsonify(**resp)
@@ -168,11 +167,14 @@ def update(pid=None):
 @blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
 def result(jid):
     job = q.fetch_job(jid)
+    job_status = job.get_status()
+    statuses = {'queued': 202, 'started': 202, 'finished': 200, 'failed': 500}
 
     resp = {
+        'status': statuses[job_status],
         'job_id': job.id,
-        'job_status': job.get_status(),
-        'rows_updated': job.result}
+        'job_status': job_status,
+        'result': job.result}
 
     return jsonify(**resp)
 
