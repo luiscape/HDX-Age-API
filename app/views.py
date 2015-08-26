@@ -98,14 +98,26 @@ def update(pid=None):
 @blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
 def result(jid):
     job = q.fetch_job(jid)
-    job_status = job.get_status()
-    statuses = {'queued': 202, 'started': 202, 'finished': 200, 'failed': 500}
+    statuses = {
+        'queued': 202,
+        'started': 202,
+        'finished': 200,
+        'failed': 500,
+        'job not found': 404,
+    }
+
+    if job:
+        job_status = job.get_status()
+        result = job.result
+    else:
+        job_status = 'job not found'
+        result = None
 
     resp = {
         'status': statuses[job_status],
-        'job_id': job.id,
+        'job_id': jid,
         'job_status': job_status,
-        'result': job.result}
+        'result': result}
 
     return jsonify(**resp)
 
