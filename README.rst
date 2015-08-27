@@ -28,7 +28,7 @@ Check that the correct version of Python is installed
 Installation
 ------------
 
-Install HDX-Age-API using either pip (recommended)
+Install HDX-Age-API using pip
 
 	sudo pip install -e git+https://github.com/reubano/HDX-Age-API@master#egg=HDX-Age-API
 
