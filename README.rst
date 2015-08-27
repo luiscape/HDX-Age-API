@@ -30,11 +30,7 @@ Installation
 
 Install HDX-Age-API using either pip (recommended)
 
-	sudo pip install HDX-Age-API
-
-or easy_install
-
-	sudo easy_install HDX-Age-API
+	sudo pip install -e git+https://github.com/reubano/HDX-Age-API@master#egg=HDX-Age-API
 
 LICENSE
 -------
