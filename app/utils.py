@@ -124,7 +124,6 @@ def update(endpoint, **kwargs):
     chunk_size = kwargs.get('chunk_size')
     row_limit = kwargs.get('row_limit')
     rows = 0
-
     ckan = CKAN(**kwargs)
 
     if pid:

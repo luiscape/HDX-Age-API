@@ -47,6 +47,7 @@ class Config(object):
     CHUNK_SIZE = 10000
     ROW_LIMIT = 0
 
+
 class Production(Config):
     defaultdb = 'postgres://%s@localhost/app' % _user
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', defaultdb)
