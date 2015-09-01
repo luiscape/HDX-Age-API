@@ -112,12 +112,9 @@ def gen_data(ckan, pids):
         # Mocking frequency.
         #
         # frequency = choice(breakpoints.keys())
-        breaks = breakpoints.get(frequency)
+
         resources = package['resources']
         title = package['title']
-
-        # frequency = int(package['frequency'])
-        frequency = choice(breakpoints.keys())
         breaks = breakpoints.get(frequency)
         resources = package['resources']
 
