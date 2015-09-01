@@ -12,13 +12,6 @@ easy_install --upgrade requests
 pip install requests[security]
 
 #
-# Installing supervisord.
-#
-pip install supervisor --pre
-easy_install --upgrade meld3
-
-
-#
 # Create database.
 #
 mkdir data

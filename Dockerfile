@@ -17,7 +17,7 @@ RUN \
   && apt-get -y upgrade \
   && apt-get install -y software-properties-common build-essential libffi-dev libssl-dev \
   && add-apt-repository ppa:fkrull/deadsnakes \
-  && apt-get -y install wget git \
+  && apt-get -y install wget git screen \
   && apt-get -y install python2.7 python2.7-dev python-dev python-distribute python-pip python-virtualenv
 
 #
