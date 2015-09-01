@@ -10,7 +10,7 @@ from __future__ import (
     unicode_literals)
 
 import itertools as it
-import requests
+import grequests
 
 from json import dumps, loads, JSONEncoder
 from ast import literal_eval
@@ -84,15 +84,20 @@ def gen_elapsed(end, start):
             yield '%d %s' % (value, attr if value > 1 else attr[:-1])
 
 
-def patch_or_post(endpoint, record):
+def ghead(endpoint, record):
+    url = '%s/%s' % (endpoint, record['dataset_id'])
+    headers = {'Content-Type': 'application/json'}
+    return grequests.head(url, headers=headers).ok
+
+def patch_or_post(endpoint, record, head):
     url = '%s/%s' % (endpoint, record['dataset_id'])
     headers = {'Content-Type': 'application/json'}
     data = dumps(record)
 
-    if requests.head(url, headers=headers).ok:
-        r = requests.patch(url, data=data, headers=headers)
+    if head.ok:
+        r = grequests.patch(url, data=data, headers=headers)
     else:
-        r = requests.post(endpoint, data=data, headers=headers)
+        r = grequests.post(endpoint, data=data, headers=headers)
 
     return r
 
@@ -178,10 +183,13 @@ def update(endpoint, **kwargs):
     errors = {}
 
     for records in tup.chunk(data, min(row_limit or 'inf', chunk_size)):
-        rs = map(partial(patch_or_post, endpoint), records)
-        rows += len(filter(lambda r: r.ok, rs))
+        heads = imap(partial(ghead, endpoint), records)
+        print(grequests.map(heads))
+        rs = imap(partial(patch_or_post, endpoint), izip(records, heads))
+        grs = grequests.map(rs)
+        rows += len(filter(lambda r: r.ok, grs))
         ids = map(itemgetter('dataset_id'), records)
-        errors.update(dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
+        errors.update(dict((k, r.json()) for k, r in zip(ids, grs) if not r.ok))
 
         if row_limit and rows >= row_limit:
             break

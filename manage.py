@@ -22,14 +22,20 @@ manager.main = manager.run  # Needed to do `manage <command>` from the cli
 
 @manager.option('-h', '--host', help='The server host', default=None)
 @manager.option('-p', '--port', help='The server port', default=None)
-def runserver(host, port):
+@manager.option(
+    '-t', '--threaded', help='Run multiple threads', action='store_true')
+def runserver(**kwargs):
     # Overriding the built-in `runserver` behavior
     """Runs the flask development server"""
 
     with app.app_context():
-        host = host or app.config['HOST']
-        port = port or app.config['PORT']
-        server = Server(host=host, port=port)
+        skwargs = {
+            'host': kwargs.get('host') or app.config['HOST'],
+            'port': kwargs.get('port') or app.config['PORT'],
+            'threaded': kwargs.get('threaded'),
+        }
+
+        server = Server(**skwargs)
         args = [
             app, server.host, server.port, server.use_debugger,
             server.use_reloader, server.threaded, server.processes,
@@ -40,10 +46,12 @@ def runserver(host, port):
 
 @manager.option('-h', '--host', help='The server host', default=None)
 @manager.option('-p', '--port', help='The server port', default=None)
-def serve(host, port):
+@manager.option(
+    '-t', '--threaded', help='Run multiple threads', action='store_true')
+def serve(**kwargs):
     # Alias for `runserver`
     """Runs the flask development server"""
-    runserver(host, port)
+    runserver(**kwargs)
 
 
 @manager.command
