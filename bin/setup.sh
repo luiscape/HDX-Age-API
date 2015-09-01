@@ -9,7 +9,12 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 easy_install --upgrade requests
+
+#
+# Installing supervisord.
+#
 pip install supervisor --pre
+easy_install --upgrade meld3
 
 
 #
