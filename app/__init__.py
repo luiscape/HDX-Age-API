@@ -73,7 +73,7 @@ def create_app(config_mode=None, config_file=None):
         cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHIER_SERVERS')]
         cache_config['CACHE_MEMCACHED_USERNAME'] = getenv('MEMCACHIER_USERNAME')
         cache_config['CACHE_MEMCACHED_PASSWORD'] = getenv('MEMCACHIER_PASSWORD')
-    elif app.config['DEBUG_MEMCACHE']:
+    elif app.config['MEMCACHE']:
         cache_config['CACHE_TYPE'] = 'memcached'
         cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHE_SERVERS')]
     else:

@@ -43,6 +43,7 @@ class Config(object):
     API_MAX_RESULTS_PER_PAGE = 1000
     API_URL_PREFIX = '/v1'
 
+    MEMCACHE = True
 
 class Production(Config):
     defaultdb = 'postgres://%s@localhost/app' % _user
@@ -59,10 +60,10 @@ class Docker(Config):
 class Development(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
     DEBUG = True
-    DEBUG_MEMCACHE = False
+    MEMCACHE = False
 
 
 class Test(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     TESTING = True
-    DEBUG_MEMCACHE = False
+    MEMCACHE = False
