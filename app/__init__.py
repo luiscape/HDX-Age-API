@@ -43,7 +43,7 @@ __title__ = 'HDX-Age-API'
 __author__ = 'Reuben Cummings'
 __description__ = 'Service to query the age and status of an HDX resource'
 __email__ = 'reubano@gmail.com'
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 Reuben Cummings'
 
