@@ -139,7 +139,7 @@ def gen_data(ckan, pids):
             'last_updated': str(last_updated),
             'needs_update': status in statuses[1:],
             'status': status,
-            'age': int(age.days),
+            'age': age.days,
             'frequency': frequency,
             'frequency_category': categories.get(frequency, None),
             'downloads': downloads
