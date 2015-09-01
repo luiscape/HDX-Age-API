@@ -44,6 +44,8 @@ class Config(object):
     API_URL_PREFIX = '/v1'
 
     MEMCACHE = True
+    CHUNK_SIZE = 10000
+    ROW_LIMIT = 0
 
 class Production(Config):
     defaultdb = 'postgres://%s@localhost/app' % _user
@@ -60,10 +62,13 @@ class Docker(Config):
 class Development(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
     DEBUG = True
+    CHUNK_SIZE = 10
+    ROW_LIMIT = 50
     MEMCACHE = False
 
 
 class Test(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    ROW_LIMIT = 10
     TESTING = True
     MEMCACHE = False

@@ -118,14 +118,11 @@ def gen_data(ckan, pids):
 
         yield data
 
-def_chunk_size = 1
-def_max_records = 3
-
 
 def update(endpoint, **kwargs):
     pid = kwargs.pop('pid', None)
-    chunk_size = int(kwargs.pop('chunk_size', 0)) or def_chunk_size
-    max_records = int(kwargs.pop('max_records', 0)) or def_max_records
+    chunk_size = kwargs.get('chunk_size')
+    row_limit = kwargs.get('row_limit')
     rows = 0
 
     ckan = CKAN(**kwargs)
@@ -146,7 +143,7 @@ def update(endpoint, **kwargs):
     post = partial(requests.post, endpoint, headers=headers)
     errors = {}
 
-    for records in tup.chunk(data, chunk_size):
+    for records in tup.chunk(data, min(row_limit or 'inf', chunk_size)):
         rs = [post(data=dumps(record)) for record in records]
         rows += len(filter(lambda r: r.ok, rs))
         ids = map(itemgetter('dataset_id'), records)
@@ -154,7 +151,7 @@ def update(endpoint, **kwargs):
         errors.update(
             dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
 
-        if rows >= max_records:
+        if row_limit and rows >= row_limit:
             break
 
     return {'rows_added': rows, 'errors': errors}
