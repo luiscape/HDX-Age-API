@@ -77,6 +77,18 @@ def require():
 
 
 @manager.command
+def work():
+    """Run the rq-worker"""
+    call('python -u worker.py', shell=True)
+
+
+@manager.command
+def dash():
+    """Run the rq-dashboard"""
+    call('rq-dashboard', shell=True)
+
+
+@manager.command
 def createdb():
     """Creates database if it doesn't already exist"""
 
