@@ -50,7 +50,7 @@ class Production(Config):
 
 
 class Development(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % p.join(_basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % p.join(_basedir, 'data', 'app.db')
     DEBUG = True
     DEBUG_MEMCACHE = False
 
