@@ -22,18 +22,15 @@ class Config(object):
     app = __APP_NAME__
     stage = os.environ.get('STAGE', False)
     end = '-stage' if stage else ''
-    HEROKU = os.environ.get('DATABASE_URL', False)
 
-    DEBUG = False
     ADMINS = frozenset([__YOUR_EMAIL__])
-    TESTING = False
     HOST = '127.0.0.1'
     PORT = int(os.environ.get('PORT', 3000))
 
     # TODO: programatically get app name
     heroku_server = '%s%s.herokuapp.com' % (app, end)
 
-    if HEROKU:
+    if os.environ.get('DATABASE_URL', False):
         SERVER_NAME = heroku_server
 
     SECRET_KEY = os.environ.get('SECRET_KEY', 'key')
@@ -43,7 +40,10 @@ class Config(object):
     API_MAX_RESULTS_PER_PAGE = 1000
     API_URL_PREFIX = '/v1'
 
+    DEBUG = False
     MEMCACHE = True
+    TESTING = False
+    PROD = False
     CHUNK_SIZE = 10000
     ROW_LIMIT = 0
 
@@ -51,6 +51,7 @@ class Production(Config):
     defaultdb = 'postgres://%s@localhost/app' % _user
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', defaultdb)
     HOST = '0.0.0.0'
+    PROD = True
 
 
 class Docker(Config):

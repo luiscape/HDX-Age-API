@@ -68,7 +68,7 @@ def create_app(config_mode=None, config_file=None):
     else:
         app.config.from_envvar('APP_SETTINGS', silent=True)
 
-    if app.config['HEROKU']:
+    if app.config['PROD']:
         cache_config['CACHE_TYPE'] = 'spreadsaslmemcachedcache'
         cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHIER_SERVERS')]
         cache_config['CACHE_MEMCACHED_USERNAME'] = getenv('MEMCACHIER_USERNAME')
