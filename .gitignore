@@ -42,3 +42,8 @@ docs/_build
 
 data/*
 data/**
+
+venv/*
+venv/**
+
+*.db
