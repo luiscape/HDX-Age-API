@@ -9,6 +9,7 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 easy_install --upgrade requests
+pip install requests[security]
 
 #
 # Installing supervisord.
