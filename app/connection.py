@@ -13,6 +13,6 @@ import redis
 
 from os import getenv
 
-redis_conn = 'REDIS_PORT_6379_TCP_ADDR' + ':' + 'PORT_6379_TCP_PORT'
-redis_url = getenv(redis_conn, 'redis://localhost:6379')
+redis_conn = getenv('REDIS_PORT_6379_TCP_ADDR', 'localhost')
+redis_url = 'redis://' + redis_conn + ':6379'
 conn = redis.from_url(redis_url)
