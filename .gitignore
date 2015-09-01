@@ -46,4 +46,7 @@ data/**
 venv/*
 venv/**
 
+logs/*
+logs/**
+
 *.db
