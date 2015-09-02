@@ -85,6 +85,9 @@ def update(pid=None):
     if sync:
         resp = {'result': utils.update(endpoint, **kwargs)}
     else:
+        timeout = kwargs.pop('timeout', c.TIMEOUT)
+        ttl = kwargs.pop('ttl', c.TTL)
+        kwargs.update({'timeout': timeout, 'ttl': ttl})
         job = q.enqueue(utils.update, endpoint, **kwargs)
         result_url = '%s/result/%s/' % (endpoint, job.id)
 

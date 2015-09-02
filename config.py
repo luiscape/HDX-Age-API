@@ -46,6 +46,8 @@ class Config(object):
     PROD = False
     CHUNK_SIZE = 10000
     ROW_LIMIT = 0
+    TIMEOUT = 30
+    TTL = 60
 
 
 class Production(Config):
@@ -53,6 +55,8 @@ class Production(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', defaultdb)
     HOST = '0.0.0.0'
     PROD = True
+    TIMEOUT = 60 * 10
+    TTL = TIMEOUT * 2
 
 
 class Docker(Config):
@@ -67,6 +71,8 @@ class Development(Config):
     CHUNK_SIZE = 10
     ROW_LIMIT = 50
     MEMCACHE = False
+    TIMEOUT = 60 * 2
+    TTL = TIMEOUT * 2
 
 
 class Test(Config):
