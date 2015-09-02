@@ -101,18 +101,23 @@ def gen_data(ckan, pids):
         # Finding frequency in
         # the extra fields.
         #
-        for extra in package['extras']:
-            if extra['key'] == 'data_update_frequency':
-                frequency = int(extra['value'])
+        # Deprecated as it seems to
+        # have been included as a property
+        # of result.
+        #
+        # for extra in package['extras']:
+        #     if extra['key'] == 'data_update_frequency':
+        #         frequency = int(extra['value'])
 
-            else:
-                frequency = None
+        #     else:
+        #         frequency = None
 
         #
         # Mocking frequency.
         #
         # frequency = choice(breakpoints.keys())
 
+        frequency = package.get('data_update_frequency', None)
         resources = package['resources']
         title = package['title']
         breaks = breakpoints.get(frequency)
