@@ -88,7 +88,6 @@ def gen_data(ckan, pids):
     for pid in pids:
         package = ckan.package_show(id=pid)
 
-
         #
         # Summing the number
         # of downloads of all resources.
