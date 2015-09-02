@@ -10,9 +10,24 @@ from __future__ import (
     unicode_literals)
 
 import redis
+from os import environ
 
-from os import getenv
+#
+# Check for Heroku environment
+# variables.
+#
+if environ.get('REDISTOGO_URL'):
+  redis_url = environ.get('REDISTOGO_URL')
 
-redis_conn = getenv('REDIS_PORT_6379_TCP_ADDR', 'localhost')
-redis_url = 'redis://' + redis_conn + ':6379'
+#
+# If not present, use Docker
+# environment variables instead.
+#
+else:
+  redis_conn = getenv('REDIS_PORT_6379_TCP_ADDR', 'localhost')
+  redis_url = 'redis://' + redis_conn + ':6379'
+
+#
+# Connect to Redis.
+#
 conn = redis.from_url(redis_url)
