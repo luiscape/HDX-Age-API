@@ -26,7 +26,7 @@ class Config(object):
     DEBUG = False
     ADMINS = frozenset([__YOUR_EMAIL__])
     TESTING = False
-    HOST = '127.0.0.1'
+    HOST = '0.0.0.0'
     PORT = int(os.environ.get('PORT', 3000))
 
     # TODO: programatically get app name
@@ -50,7 +50,8 @@ class Production(Config):
 
 
 class Development(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % p.join(_basedir, 'app.db')
+    database_path = p.join(_basedir, 'data', 'app.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % database_path
     DEBUG = True
     DEBUG_MEMCACHE = False
 

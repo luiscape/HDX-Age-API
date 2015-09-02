@@ -87,8 +87,38 @@ def parse(string):
 def gen_data(ckan, pids):
     for pid in pids:
         package = ckan.package_show(id=pid)
-        # frequency = int(package['frequency'])
-        frequency = choice(breakpoints.keys())
+
+        #
+        # Summing the number
+        # of downloads of all resources.
+        #
+        downloads = 0
+        for resource in package['resources']:
+            downloads += int(resource['tracking_summary']['total'])
+
+        #
+        # Finding frequency in
+        # the extra fields.
+        #
+        # Deprecated as it seems to
+        # have been included as a property
+        # of result.
+        #
+        # for extra in package['extras']:
+        #     if extra['key'] == 'data_update_frequency':
+        #         frequency = int(extra['value'])
+
+        #     else:
+        #         frequency = None
+
+        #
+        # Mocking frequency.
+        #
+        # frequency = choice(breakpoints.keys())
+
+        frequency = package.get('data_update_frequency', None)
+        resources = package['resources']
+        title = package['title']
         breaks = breakpoints.get(frequency)
         resources = package['resources']
 
@@ -104,14 +134,16 @@ def gen_data(ckan, pids):
             status = 'Invalid frequency. Status could not be determined.'
 
         data = {
-            'dataset_id': pid,
+            'dataset_id': package['id'],
             'dataset_name': package['name'],
+            'dataset_title': package['title'],
             'last_updated': str(last_updated),
             'needs_update': status in statuses[1:],
             'status': status,
-            'age': age.days,
+            'age': int(age.days),
             'frequency': frequency,
-            'frequency_category': categories.get(frequency, 'N/A')
+            'frequency_category': categories.get(frequency, None),
+            'downloads': downloads
         }
 
         yield data

@@ -39,3 +39,14 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+
+data/*
+data/**
+
+venv/*
+venv/**
+
+logs/*
+logs/**
+
+*.db

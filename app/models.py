@@ -31,9 +31,16 @@ class Age(db.Model, ValidationMixin):
     last_updated = db.Column(db.DateTime, nullable=False)
     needs_update = db.Column(db.Boolean, nullable=False)
     status = db.Column(db.String(16), nullable=False)
-    age = db.Column(db.Float, nullable=False)
+    age = db.Column(db.Integer, nullable=False)
     frequency = db.Column(db.Integer, nullable=False)
     frequency_category = db.Column(db.String(16), nullable=False)
+
+    #
+    # Added by Luis Capelo.
+    # 2015-09-01
+    #
+    dataset_title = db.Column(db.String(128), nullable=False)
+    downloads = db.Column(db.Integer, nullable=False)
 
     # validation
     val.validates_constraints()
