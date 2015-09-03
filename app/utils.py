@@ -19,6 +19,8 @@ from bisect import bisect
 from operator import itemgetter
 from functools import partial
 from random import choice
+from timeit import default_timer as timer
+from dateutil.relativedelta import relativedelta
 
 from flask import make_response, request
 from ckanutils import CKAN
@@ -66,6 +68,20 @@ def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
     response.headers['mimetype'] = 'application/json'
     response.status_code = status
     return response
+
+
+def gen_elapsed(end, start):
+    # http://stackoverflow.com/a/11157649/408556
+    # http://stackoverflow.com/a/25823885/408556
+    attrs = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
+    elapsed = end - start
+    delta = relativedelta(seconds=elapsed)
+
+    for attr in attrs:
+        value = getattr(delta, attr)
+
+        if value:
+            yield '%d %s' % (value, attr if value > 1 else attr[:-1])
 
 
 def make_cache_key(*args, **kwargs):
@@ -125,6 +141,7 @@ def gen_data(ckan, pids, mock_freq=False):
 
 
 def update(endpoint, **kwargs):
+    start = timer()
     pid = kwargs.pop('pid', None)
     chunk_size = kwargs.get('chunk_size')
     row_limit = kwargs.get('row_limit')
@@ -153,9 +170,7 @@ def update(endpoint, **kwargs):
         rs = [post(data=dumps(record)) for record in records]
         rows += len(filter(lambda r: r.ok, rs))
         ids = map(itemgetter('dataset_id'), records)
-
-        errors.update(
-            dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
+        errors.update(dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
 
         if row_limit and rows >= row_limit:
             break
@@ -163,7 +178,8 @@ def update(endpoint, **kwargs):
         if err_limit and len(errors) >= err_limit:
             raise Exception(errors)
 
-    return {'rows_added': rows, 'errors': errors}
+    elapsed_time = ' ,'.join(gen_elapsed(timer(), start))
+    return {'rows_added': rows, 'errors': errors, 'elapsed_time': elapsed_time}
 
 
 def count_letters(word=''):
