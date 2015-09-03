@@ -2,14 +2,14 @@ import os
 from os import path as p
 
 # module vars
-_user = 'reubano'
 _basedir = p.dirname(__file__)
 
 # configurable vars
+__USER__ = 'reubano'
 __APP_NAME__ = 'HDX-Age-API'
 __YOUR_NAME__ = 'Reuben Cummings'
 __YOUR_EMAIL__ = 'reubano@gmail.com'
-__YOUR_WEBSITE__ = 'http://%s.github.io' % _user
+__YOUR_WEBSITE__ = 'http://%s.github.io' % __USER__
 
 
 # configuration
@@ -33,6 +33,7 @@ class Config(object):
         SERVER_NAME = heroku_server
 
     SECRET_KEY = os.environ.get('SECRET_KEY', 'key')
+    REPO = 'https://github.com/%s/%s' % (__USER__, __APP_NAME__)
     API_METHODS = ['GET', 'POST', 'DELETE', 'PATCH', 'PUT']
     API_ALLOW_FUNCTIONS = True
     API_ALLOW_PATCH_MANY = True
@@ -52,7 +53,7 @@ class Config(object):
 
 
 class Production(Config):
-    defaultdb = 'postgres://%s@localhost/app' % _user
+    defaultdb = 'postgres://%s@localhost/app' % __USER__
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', defaultdb)
     HOST = '0.0.0.0'
     PROD = True

@@ -35,7 +35,7 @@ def status():
         'message': 'Service for checking and updating HDX dataset ages.',
         'CKAN_instance': ckan.address,
         'version': __version__,
-        'repository': 'https://github.com/reubano/HDX-Age-API'
+        'repository': c.REPO
     }
 
     return jsonify(**resp)
