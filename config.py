@@ -38,6 +38,7 @@ class Config(object):
     API_ALLOW_PATCH_MANY = True
     API_MAX_RESULTS_PER_PAGE = 1000
     API_URL_PREFIX = '/v1'
+    CACHE_TIMEOUT = 60 * 60 * 1  # hours (in seconds)
 
     MOCK_FREQ = False
     DEBUG = False

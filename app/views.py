@@ -22,11 +22,10 @@ from app.connection import conn
 
 q = Queue(connection=conn)
 blueprint = Blueprint('blueprint', __name__)
-cache_timeout = 60 * 60 * 1  # hours (in seconds)
 
 
 @blueprint.route('%s/status/' % c.API_URL_PREFIX)
-@cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
+@cache.cached(timeout=c.CACHE_TIMEOUT, key_prefix=make_cache_key)
 def status():
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     ckan = CKAN(**kwargs)
@@ -43,7 +42,7 @@ def status():
 
 
 @blueprint.route('%s/lorem/' % c.API_URL_PREFIX)
-@cache.cached(timeout=cache_timeout, key_prefix=make_cache_key)
+@cache.cached(timeout=c.CACHE_TIMEOUT, key_prefix=make_cache_key)
 def lorem():
     resp = {'result': get_sentences(1)[0]}
     return jsonify(**resp)
@@ -130,7 +129,7 @@ def result(jid):
 
 
 @blueprint.route('%s/double/<num>/' % c.API_URL_PREFIX)
-@cache.memoize(timeout=cache_timeout)
+@cache.memoize(timeout=c.CACHE_TIMEOUT)
 def double(num):
     resp = {'result': 2 * num}
     return jsonify(**resp)
