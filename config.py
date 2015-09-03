@@ -18,7 +18,6 @@ class Config(object):
     # WARNING: if running on a a staging server, you MUST set the 'STAGE' env
     # heroku config:set STAGE=true --remote staging
     ###########################################################################
-    app = __APP_NAME__
     stage = os.environ.get('STAGE', False)
     end = '-stage' if stage else ''
 
@@ -27,7 +26,7 @@ class Config(object):
     PORT = int(os.environ.get('PORT', 3000))
 
     # TODO: programatically get app name
-    heroku_server = '%s%s.herokuapp.com' % (app, end)
+    heroku_server = '%s%s.herokuapp.com' % (__APP_NAME__, end)
 
     if os.environ.get('DATABASE_URL', False):
         SERVER_NAME = heroku_server
