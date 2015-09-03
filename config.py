@@ -4,7 +4,6 @@ from os import path as p
 # module vars
 _user = 'reubano'
 _basedir = p.dirname(__file__)
-_database_path = p.join(_basedir, 'data', 'app.db')
 
 # configurable vars
 __APP_NAME__ = 'HDX-Age-API'
@@ -61,13 +60,14 @@ class Production(Config):
 
 
 class Docker(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
+    database_path = p.join(_basedir, 'data', 'app.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % database_path
     HOST = '0.0.0.0'
     DEBUG_MEMCACHE = False
 
 
 class Development(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % p.join(_basedir, 'app.db')
     MOCK_FREQ = True
     DEBUG = True
     CHUNK_SIZE = 10
