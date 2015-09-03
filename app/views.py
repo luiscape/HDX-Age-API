@@ -13,6 +13,7 @@ from flask import Blueprint, request
 from rq import Queue
 from loremipsum import get_sentences
 from ckanutils import CKAN
+from collections import defaultdict
 
 from config import Config as c
 from app import cache, __version__, utils
@@ -74,27 +75,24 @@ def test(word=''):
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     sync = kwargs.pop('sync', False)
-    chunk_size = int(kwargs.pop('chunk_size', c.CHUNK_SIZE))
-    row_limit = int(kwargs.pop('row_limit', c.ROW_LIMIT))
 
-    updates = {
-        'pid': pid,
+    defaults = {
+        'chunk_size': c.CHUNK_SIZE,
+        'row_limit': c.ROW_LIMIT,
         'mock': c.MOCK_FREQ,
-        'chunk_size': chunk_size,
-        'row_limit': row_limit
+        'timeout': c.TIMEOUT,
+        'ttl': c.TTL
     }
 
-    kwargs.update(updates)
+    opts = defaultdict(int, pid=pid, **defaults)
+    opts.update(kwargs)
     base_url = 'http://%s:%s%s' % (c.HOST, c.PORT, c.API_URL_PREFIX)
     endpoint = '%s/age' % base_url
 
     if sync:
-        resp = {'result': utils.update(endpoint, **kwargs)}
+        resp = {'result': utils.update(endpoint, **opts)}
     else:
-        timeout = kwargs.pop('timeout', c.TIMEOUT)
-        ttl = kwargs.pop('ttl', c.TTL)
-        kwargs.update({'timeout': timeout, 'ttl': ttl})
-        job = q.enqueue(utils.update, endpoint, **kwargs)
+        job = q.enqueue(utils.update, endpoint, **opts)
         result_url = '%s/result/%s/' % (endpoint, job.id)
 
         resp = {
