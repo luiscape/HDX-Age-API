@@ -11,16 +11,39 @@ from subprocess import call, check_call
 from flask import current_app as app
 from flask.ext.script import Server, Manager
 
-from config import Config as c
 from app import create_app, db
 
 manager = Manager(create_app)
 manager.add_option(
     '-m', '--cfgmode', dest='config_mode', default='Development')
 manager.add_option('-f', '--cfgfile', dest='config_file', type=p.abspath)
-manager.add_command('runserver', Server(host=c.HOST, port=c.PORT))
-manager.add_command('serve', Server(host=c.HOST, port=c.PORT))
-manager.main = manager.run
+manager.main = manager.run  # Needed to do `manage <command>` from the cli
+
+
+@manager.option('-h', '--host', help='The server host', default=None)
+@manager.option('-p', '--port', help='The server port', default=None)
+def runserver(host, port):
+    # Overriding the built-in `runserver` behavior
+    """Runs the flask development server"""
+
+    with app.app_context():
+        host = host or app.config['HOST']
+        port = port or app.config['PORT']
+        server = Server(host=host, port=port)
+        args = [
+            app, server.host, server.port, server.use_debugger,
+            server.use_reloader, server.threaded, server.processes,
+            server.passthrough_errors]
+
+        server(*args)
+
+
+@manager.option('-h', '--host', help='The server host', default=None)
+@manager.option('-p', '--port', help='The server port', default=None)
+def serve(host, port):
+    # Alias for `runserver`
+    """Runs the flask development server"""
+    runserver(host, port)
 
 
 @manager.command
@@ -74,6 +97,18 @@ def require():
     cmd += '| grep -vxFf prod-requirements.txt '
     cmd += '> requirements.txt'
     call(cmd, shell=True)
+
+
+@manager.command
+def work():
+    """Run the rq-worker"""
+    call('python -u worker.py', shell=True)
+
+
+@manager.command
+def dash():
+    """Run the rq-dashboard"""
+    call('rq-dashboard', shell=True)
 
 
 @manager.command

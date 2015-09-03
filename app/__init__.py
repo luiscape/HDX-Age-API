@@ -43,7 +43,7 @@ __title__ = 'HDX-Age-API'
 __author__ = 'Reuben Cummings'
 __description__ = 'Service to query the age and status of an HDX resource'
 __email__ = 'reubano@gmail.com'
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 Reuben Cummings'
 
@@ -68,12 +68,12 @@ def create_app(config_mode=None, config_file=None):
     else:
         app.config.from_envvar('APP_SETTINGS', silent=True)
 
-    if app.config['HEROKU']:
+    if app.config['PROD']:
         cache_config['CACHE_TYPE'] = 'spreadsaslmemcachedcache'
         cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHIER_SERVERS')]
         cache_config['CACHE_MEMCACHED_USERNAME'] = getenv('MEMCACHIER_USERNAME')
         cache_config['CACHE_MEMCACHED_PASSWORD'] = getenv('MEMCACHIER_PASSWORD')
-    elif app.config['DEBUG_MEMCACHE']:
+    elif app.config['MEMCACHE']:
         cache_config['CACHE_TYPE'] = 'memcached'
         cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHE_SERVERS')]
     else:

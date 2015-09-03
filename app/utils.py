@@ -18,6 +18,9 @@ from datetime import datetime as dt
 from bisect import bisect
 from operator import itemgetter
 from functools import partial
+from random import choice
+from timeit import default_timer as timer
+from dateutil.relativedelta import relativedelta
 
 from flask import make_response, request
 from ckanutils import CKAN
@@ -67,6 +70,20 @@ def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
     return response
 
 
+def gen_elapsed(end, start):
+    # http://stackoverflow.com/a/11157649/408556
+    # http://stackoverflow.com/a/25823885/408556
+    attrs = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
+    elapsed = end - start
+    delta = relativedelta(seconds=elapsed)
+
+    for attr in attrs:
+        value = getattr(delta, attr)
+
+        if value:
+            yield '%d %s' % (value, attr if value > 1 else attr[:-1])
+
+
 def make_cache_key(*args, **kwargs):
     return request.url
 
@@ -83,7 +100,7 @@ def parse(string):
             return string
 
 
-def gen_data(ckan, pids):
+def gen_data(ckan, pids, mock_freq=False):
     for pid in pids:
         package = ckan.package_show(id=pid)
         resources = package['resources']
@@ -92,8 +109,12 @@ def gen_data(ckan, pids):
             continue
 
         downloads = sum(int(r['tracking_summary']['total']) for r in resources)
-        # frequency = choice(breakpoints.keys())  # Mocking frequency
-        frequency = package.get('data_update_frequency')
+
+        if mock_freq:
+            frequency = choice(breakpoints.keys())
+        else:
+            frequency = package.get('data_update_frequency')
+
         breaks = breakpoints.get(frequency)
         last_updated = max(it.imap(ckan.get_update_date, resources))
         age = dt.now() - last_updated
@@ -101,13 +122,13 @@ def gen_data(ckan, pids):
         if breaks:
             status = statuses[bisect(breaks, age.days)]
         else:
-            status = 'Invalid frequency. Status could not be determined.'
+            status = 'Invalid frequency'
 
         data = {
             'dataset_id': package['id'],
             'dataset_name': package['name'],
             'dataset_title': package['title'],
-            'last_updated': str(last_updated),
+            'last_updated': last_updated.isoformat(),
             'needs_update': status in statuses[1:],
             'status': status,
             'age': int(age.days),
@@ -119,7 +140,14 @@ def gen_data(ckan, pids):
         yield data
 
 
-def update(pid=None, chunk_size=None, **kwargs):
+def update(endpoint, **kwargs):
+    start = timer()
+    pid = kwargs.pop('pid', None)
+    chunk_size = kwargs.get('chunk_size')
+    row_limit = kwargs.get('row_limit')
+    err_limit = kwargs.get('err_limit')
+
+    rows = 0
     ckan = CKAN(**kwargs)
 
     if pid:
@@ -133,25 +161,25 @@ def update(pid=None, chunk_size=None, **kwargs):
         pid_getter = partial(map, itemgetter('id'))
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
-    chunk_size = chunk_size or 1
-    base_url = 'http://localhost:3000/v1/age'
-    data = gen_data(ckan, pids)
+    data = gen_data(ckan, pids, kwargs.get('mock_freq'))
     headers = {'Content-Type': 'application/json'}
-    rows = 0
-    post = partial(requests.post, base_url, headers=headers)
-    safe = []
+    post = partial(requests.post, endpoint, headers=headers)
+    errors = {}
 
-    for records in tup.chunk(data, chunk_size):
-        count = len(records)
-        safe.extend(records)
-        [post(data=dumps(record)) for record in records]
+    for records in tup.chunk(data, min(row_limit or 'inf', chunk_size)):
+        rs = [post(data=dumps(record)) for record in records]
+        rows += len(filter(lambda r: r.ok, rs))
+        ids = map(itemgetter('dataset_id'), records)
+        errors.update(dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))
 
-        rows += count
-
-        if rows >= 3:
+        if row_limit and rows >= row_limit:
             break
 
-    return rows
+        if err_limit and len(errors) >= err_limit:
+            raise Exception(errors)
+
+    elapsed_time = ' ,'.join(gen_elapsed(timer(), start))
+    return {'rows_added': rows, 'errors': errors, 'elapsed_time': elapsed_time}
 
 
 def count_letters(word=''):
