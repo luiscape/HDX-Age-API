@@ -84,6 +84,19 @@ def gen_elapsed(end, start):
             yield '%d %s' % (value, attr if value > 1 else attr[:-1])
 
 
+def patch_or_post(endpoint, record):
+    url = '%s/%s' % (endpoint, record['dataset_id'])
+    headers = {'Content-Type': 'application/json'}
+    data = dumps(record)
+
+    if requests.head(url, headers=headers).ok:
+        r = requests.patch(url, data=data, headers=headers)
+    else:
+        r = requests.post(endpoint, data=data, headers=headers)
+
+    return r
+
+
 def make_cache_key(*args, **kwargs):
     return request.url
 
@@ -162,12 +175,10 @@ def update(endpoint, **kwargs):
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
     data = gen_data(ckan, pids, kwargs.get('mock_freq'))
-    headers = {'Content-Type': 'application/json'}
-    post = partial(requests.post, endpoint, headers=headers)
     errors = {}
 
     for records in tup.chunk(data, min(row_limit or 'inf', chunk_size)):
-        rs = [post(data=dumps(record)) for record in records]
+        rs = map(partial(patch_or_post, endpoint), records)
         rows += len(filter(lambda r: r.ok, rs))
         ids = map(itemgetter('dataset_id'), records)
         errors.update(dict((k, r.json()) for k, r in zip(ids, rs) if not r.ok))

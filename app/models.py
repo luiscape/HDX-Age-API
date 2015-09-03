@@ -19,14 +19,12 @@ from app import db
 
 class Age(db.Model, ValidationMixin):
     # auto keys
-    id = db.Column(db.Integer, primary_key=True)
     utc_created = db.Column(db.DateTime, nullable=False, default=dt.utcnow())
     utc_updated = db.Column(
         db.DateTime, nullable=False, default=dt.utcnow(), onupdate=dt.utcnow())
 
     # other keys
-    dataset_id = db.Column(
-        db.String(128), nullable=False, unique=True, index=True)
+    dataset_id = db.Column(db.String(128), primary_key=True)
     dataset_name = db.Column(db.String(128), nullable=False)
     last_updated = db.Column(db.DateTime, nullable=False)
     needs_update = db.Column(db.Boolean, nullable=False)
