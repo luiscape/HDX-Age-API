@@ -53,9 +53,8 @@ def lorem():
 @blueprint.route('%s/test/<word>/' % c.API_URL_PREFIX)
 def test(word=''):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
-    sync = kwargs.pop('sync', False)
 
-    if sync:
+    if kwargs.pop('sync', False):
         resp = {'result': utils.count_letters(word)}
     else:
         job = q.enqueue(utils.count_letters, word)
