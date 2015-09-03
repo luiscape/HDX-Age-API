@@ -26,7 +26,7 @@ class Config(object):
     DEBUG = False
     ADMINS = frozenset([__YOUR_EMAIL__])
     TESTING = False
-    HOST = '0.0.0.0'
+    HOST = '127.0.0.1'
     PORT = int(os.environ.get('PORT', 3000))
 
     # TODO: programatically get app name
