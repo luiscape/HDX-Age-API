@@ -59,7 +59,7 @@ def test(word=''):
         else:
             job = q.enqueue(utils.count_letters, word)
             base = 'http://%(HOST)s:%(PORT)s%(API_URL_PREFIX)s' % app.config
-            result_url += '%s/result/%s' % (base, job.id)
+            result_url = '%s/result/%s' % (base, job.id)
 
             resp = {
                 'job_id': job.id,

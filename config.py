@@ -48,7 +48,7 @@ class Config(object):
     CHUNK_SIZE = 10000
     ERR_LIMIT = 10
     ROW_LIMIT = 0
-    TIMEOUT = 60 * 60 * 3 # 3 hours (in seconds)
+    TIMEOUT = 60 * 60 * 3  # 3 hours (in seconds)
     TTL = TIMEOUT * 2
 
 

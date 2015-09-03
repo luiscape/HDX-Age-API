@@ -11,7 +11,6 @@ from subprocess import call, check_call
 from flask import current_app as app
 from flask.ext.script import Server, Manager
 
-from config import Config as c
 from app import create_app, db
 
 manager = Manager(create_app)
