@@ -9,7 +9,7 @@ from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals)
 
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app as app
 from rq import Queue
 from loremipsum import get_sentences
 from ckanutils import CKAN
@@ -53,19 +53,20 @@ def lorem():
 def test(word=''):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
 
-    if kwargs.pop('sync', False):
-        resp = {'result': utils.count_letters(word)}
-    else:
-        job = q.enqueue(utils.count_letters, word)
-        result_url = 'http://%s:%s%s/result/%s' % (
-            c.HOST, c.PORT, c.API_URL_PREFIX, job.id)
+    with app.app_context():
+        if kwargs.pop('sync', False):
+            resp = {'result': utils.count_letters(word)}
+        else:
+            job = q.enqueue(utils.count_letters, word)
+            base = 'http://%(HOST)s:%(PORT)s%(API_URL_PREFIX)s' % app.config
+            result_url += '%s/result/%s' % (base, job.id)
 
-        resp = {
-            'job_id': job.id,
-            'job_status': job.get_status(),
-            'result_url': result_url}
+            resp = {
+                'job_id': job.id,
+                'job_status': job.get_status(),
+                'result_url': result_url}
 
-    return jsonify(**resp)
+        return jsonify(**resp)
 
 
 @blueprint.route('%s/update/' % c.API_URL_PREFIX)
@@ -73,32 +74,29 @@ def test(word=''):
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     sync = kwargs.pop('sync', False)
+    whitelist = ['CHUNK_SIZE', 'ROW_LIMIT', 'MOCK_FREQ', 'TIMEOUT', 'TTL']
 
-    defaults = {
-        'chunk_size': c.CHUNK_SIZE,
-        'row_limit': c.ROW_LIMIT,
-        'mock': c.MOCK_FREQ,
-        'timeout': c.TIMEOUT,
-        'ttl': c.TTL
-    }
+    with app.app_context():
+        defaults = {
+            k.lower(): v for k, v in app.config.items() if k in whitelist}
 
-    opts = defaultdict(int, pid=pid, **defaults)
-    opts.update(kwargs)
-    base_url = 'http://%s:%s%s' % (c.HOST, c.PORT, c.API_URL_PREFIX)
-    endpoint = '%s/age' % base_url
+        opts = defaultdict(int, pid=pid, **defaults)
+        opts.update(kwargs)
+        base = 'http://%(HOST)s:%(PORT)s%(API_URL_PREFIX)s' % app.config
+        endpoint = '%s/age' % base
 
-    if sync:
-        resp = {'result': utils.update(endpoint, **opts)}
-    else:
-        job = q.enqueue(utils.update, endpoint, **opts)
-        result_url = '%s/result/%s/' % (endpoint, job.id)
+        if sync:
+            resp = {'result': utils.update(endpoint, **opts)}
+        else:
+            job = q.enqueue(utils.update, endpoint, **opts)
+            result_url = '%s/result/%s/' % (endpoint, job.id)
 
-        resp = {
-            'job_id': job.id,
-            'job_status': job.get_status(),
-            'result_url': result_url}
+            resp = {
+                'job_id': job.id,
+                'job_status': job.get_status(),
+                'result_url': result_url}
 
-    return jsonify(**resp)
+        return jsonify(**resp)
 
 
 @blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
