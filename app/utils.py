@@ -18,7 +18,6 @@ from datetime import datetime as dt
 from bisect import bisect
 from operator import itemgetter
 from functools import partial
-from random import choice
 
 from flask import make_response, request
 from ckanutils import CKAN
@@ -118,7 +117,6 @@ def gen_data(ckan, pids):
 
         frequency = package.get('data_update_frequency', None)
         resources = package['resources']
-        title = package['title']
         breaks = breakpoints.get(frequency)
         resources = package['resources']
 
