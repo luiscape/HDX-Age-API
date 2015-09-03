@@ -63,7 +63,10 @@ class Docker(Config):
     database_path = p.join(_basedir, 'data', 'app.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % database_path
     HOST = '0.0.0.0'
-    DEBUG_MEMCACHE = False
+    PROD = True
+    MEMCACHE = False
+    TIMEOUT = 60 * 10
+    TTL = TIMEOUT * 2
 
 
 class Development(Config):
