@@ -18,6 +18,7 @@ from datetime import datetime as dt
 from bisect import bisect
 from operator import itemgetter
 from functools import partial
+from random import choice
 
 from flask import make_response, request
 from ckanutils import CKAN
@@ -83,7 +84,7 @@ def parse(string):
             return string
 
 
-def gen_data(ckan, pids):
+def gen_data(ckan, pids, mock=False):
     for pid in pids:
         package = ckan.package_show(id=pid)
         resources = package['resources']
@@ -92,8 +93,12 @@ def gen_data(ckan, pids):
             continue
 
         downloads = sum(int(r['tracking_summary']['total']) for r in resources)
-        # frequency = choice(breakpoints.keys())  # Mocking frequency
-        frequency = package.get('data_update_frequency')
+
+        if mock:
+            frequency = choice(breakpoints.keys())
+        else:
+            frequency = package.get('data_update_frequency')
+
         breaks = breakpoints.get(frequency)
         last_updated = max(it.imap(ckan.get_update_date, resources))
         age = dt.now() - last_updated
@@ -137,7 +142,7 @@ def update(endpoint, **kwargs):
         pid_getter = partial(map, itemgetter('id'))
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
-    data = gen_data(ckan, pids)
+    data = gen_data(ckan, pids, kwargs.get('mock'))
     headers = {'Content-Type': 'application/json'}
     post = partial(requests.post, endpoint, headers=headers)
     errors = {}

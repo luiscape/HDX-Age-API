@@ -73,12 +73,18 @@ def test(word=''):
 @blueprint.route('%s/update/<pid>/' % c.API_URL_PREFIX)
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
-    kwargs['pid'] = pid
     sync = kwargs.pop('sync', False)
     chunk_size = int(kwargs.pop('chunk_size', c.CHUNK_SIZE))
     row_limit = int(kwargs.pop('row_limit', c.ROW_LIMIT))
 
-    kwargs.update({'chunk_size': chunk_size, 'row_limit': row_limit})
+    updates = {
+        'pid': pid,
+        'mock': c.MOCK_FREQ,
+        'chunk_size': chunk_size,
+        'row_limit': row_limit
+    }
+
+    kwargs.update(updates)
     base_url = 'http://%s:%s%s' % (c.HOST, c.PORT, c.API_URL_PREFIX)
     endpoint = '%s/age' % base_url
 

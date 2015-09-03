@@ -40,6 +40,7 @@ class Config(object):
     API_MAX_RESULTS_PER_PAGE = 1000
     API_URL_PREFIX = '/v1'
 
+    MOCK_FREQ = False
     DEBUG = False
     MEMCACHE = True
     TESTING = False
@@ -67,6 +68,7 @@ class Docker(Config):
 
 class Development(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
+    MOCK_FREQ = True
     DEBUG = True
     CHUNK_SIZE = 10
     ROW_LIMIT = 50
