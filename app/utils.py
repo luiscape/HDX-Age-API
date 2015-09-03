@@ -84,7 +84,7 @@ def parse(string):
             return string
 
 
-def gen_data(ckan, pids, mock=False):
+def gen_data(ckan, pids, mock_freq=False):
     for pid in pids:
         package = ckan.package_show(id=pid)
         resources = package['resources']
@@ -94,7 +94,7 @@ def gen_data(ckan, pids, mock=False):
 
         downloads = sum(int(r['tracking_summary']['total']) for r in resources)
 
-        if mock:
+        if mock_freq:
             frequency = choice(breakpoints.keys())
         else:
             frequency = package.get('data_update_frequency')
@@ -142,7 +142,7 @@ def update(endpoint, **kwargs):
         pid_getter = partial(map, itemgetter('id'))
         pids = it.chain.from_iterable(it.imap(pid_getter, package_lists))
 
-    data = gen_data(ckan, pids, kwargs.get('mock'))
+    data = gen_data(ckan, pids, kwargs.get('mock_freq'))
     headers = {'Content-Type': 'application/json'}
     post = partial(requests.post, endpoint, headers=headers)
     errors = {}
