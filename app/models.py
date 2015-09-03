@@ -34,11 +34,6 @@ class Age(db.Model, ValidationMixin):
     age = db.Column(db.Integer, nullable=False)
     frequency = db.Column(db.Integer, nullable=False)
     frequency_category = db.Column(db.String(16), nullable=False)
-
-    #
-    # Added by Luis Capelo.
-    # 2015-09-01
-    #
     dataset_title = db.Column(db.String(128), nullable=False)
     downloads = db.Column(db.Integer, nullable=False)
 
