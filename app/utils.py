@@ -18,7 +18,6 @@ from datetime import datetime as dt
 from bisect import bisect
 from operator import itemgetter
 from functools import partial
-from random import choice
 
 from flask import make_response, request
 from ckanutils import CKAN
@@ -87,44 +86,15 @@ def parse(string):
 def gen_data(ckan, pids):
     for pid in pids:
         package = ckan.package_show(id=pid)
-
-        #
-        # Summing the number
-        # of downloads of all resources.
-        #
-        downloads = 0
-        for resource in package['resources']:
-            downloads += int(resource['tracking_summary']['total'])
-
-        #
-        # Finding frequency in
-        # the extra fields.
-        #
-        # Deprecated as it seems to
-        # have been included as a property
-        # of result.
-        #
-        # for extra in package['extras']:
-        #     if extra['key'] == 'data_update_frequency':
-        #         frequency = int(extra['value'])
-
-        #     else:
-        #         frequency = None
-
-        #
-        # Mocking frequency.
-        #
-        # frequency = choice(breakpoints.keys())
-
-        frequency = package.get('data_update_frequency', None)
-        resources = package['resources']
-        title = package['title']
-        breaks = breakpoints.get(frequency)
         resources = package['resources']
 
         if not resources:
             continue
 
+        downloads = sum(int(r['tracking_summary']['total']) for r in resources)
+        # frequency = choice(breakpoints.keys())  # Mocking frequency
+        frequency = package.get('data_update_frequency')
+        breaks = breakpoints.get(frequency)
         last_updated = max(it.imap(ckan.get_update_date, resources))
         age = dt.now() - last_updated
 
@@ -142,14 +112,14 @@ def gen_data(ckan, pids):
             'status': status,
             'age': int(age.days),
             'frequency': frequency,
-            'frequency_category': categories.get(frequency, None),
+            'frequency_category': categories.get(frequency),
             'downloads': downloads
         }
 
         yield data
 
 
-def update(pid, chunk_size=None, **kwargs):
+def update(pid=None, chunk_size=None, **kwargs):
     ckan = CKAN(**kwargs)
 
     if pid:

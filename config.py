@@ -4,6 +4,7 @@ from os import path as p
 # module vars
 _user = 'reubano'
 _basedir = p.dirname(__file__)
+_database_path = p.join(_basedir, 'data', 'app.db')
 
 # configurable vars
 __APP_NAME__ = 'HDX-Age-API'
@@ -26,7 +27,7 @@ class Config(object):
     DEBUG = False
     ADMINS = frozenset([__YOUR_EMAIL__])
     TESTING = False
-    HOST = '0.0.0.0'
+    HOST = '127.0.0.1'
     PORT = int(os.environ.get('PORT', 3000))
 
     # TODO: programatically get app name
@@ -49,9 +50,14 @@ class Production(Config):
     HOST = '0.0.0.0'
 
 
+class Docker(Config):
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
+    HOST = '0.0.0.0'
+    DEBUG_MEMCACHE = False
+
+
 class Development(Config):
-    database_path = p.join(_basedir, 'data', 'app.db')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % database_path
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % _database_path
     DEBUG = True
     DEBUG_MEMCACHE = False
 
