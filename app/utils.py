@@ -106,7 +106,7 @@ def gen_data(ckan, pids, mock_freq=False):
         if breaks:
             status = statuses[bisect(breaks, age.days)]
         else:
-            status = 'Invalid frequency. Status could not be determined.'
+            status = 'Invalid frequency'
 
         data = {
             'dataset_id': package['id'],
