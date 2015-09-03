@@ -128,6 +128,8 @@ def update(endpoint, **kwargs):
     pid = kwargs.pop('pid', None)
     chunk_size = kwargs.get('chunk_size')
     row_limit = kwargs.get('row_limit')
+    err_limit = kwargs.get('err_limit')
+
     rows = 0
     ckan = CKAN(**kwargs)
 
@@ -157,6 +159,9 @@ def update(endpoint, **kwargs):
 
         if row_limit and rows >= row_limit:
             break
+
+        if err_limit and len(errors) >= err_limit:
+            raise Exception(errors)
 
     return {'rows_added': rows, 'errors': errors}
 

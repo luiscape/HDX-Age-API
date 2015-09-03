@@ -74,7 +74,8 @@ def test(word=''):
 def update(pid=None):
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     sync = kwargs.pop('sync', False)
-    whitelist = ['CHUNK_SIZE', 'ROW_LIMIT', 'MOCK_FREQ', 'TIMEOUT', 'TTL']
+    whitelist = [
+        'CHUNK_SIZE', 'ROW_LIMIT', 'ERR_LIMIT', 'MOCK_FREQ', 'TIMEOUT', 'TTL']
 
     with app.app_context():
         defaults = {

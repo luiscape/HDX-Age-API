@@ -46,6 +46,7 @@ class Config(object):
     TESTING = False
     PROD = False
     CHUNK_SIZE = 10000
+    ERR_LIMIT = 10
     ROW_LIMIT = 0
     TIMEOUT = 30
     TTL = 60
