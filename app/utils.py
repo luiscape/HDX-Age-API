@@ -70,11 +70,10 @@ def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
     return response
 
 
-def gen_elapsed(end, start):
+def fmt_elapsed(elapsed):
     # http://stackoverflow.com/a/11157649/408556
     # http://stackoverflow.com/a/25823885/408556
     attrs = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
-    elapsed = end - start
     delta = relativedelta(seconds=elapsed)
 
     for attr in attrs:
@@ -104,7 +103,7 @@ def make_cache_key(*args, **kwargs):
 def parse(string):
     string = string.encode(encoding)
 
-    if string.lower() in ('true', 'false'):
+    if string.lower() in {'true', 'false'}:
         return loads(string.lower())
     else:
         try:
@@ -156,9 +155,9 @@ def gen_data(ckan, pids, mock_freq=False):
 def update(endpoint, **kwargs):
     start = timer()
     pid = kwargs.pop('pid', None)
-    chunk_size = kwargs.get('chunk_size')
-    row_limit = kwargs.get('row_limit')
-    err_limit = kwargs.get('err_limit')
+    chunk_size = kwargs.pop('chunk_size', 0)
+    row_limit = kwargs.pop('row_limit', None)
+    err_limit = kwargs.pop('err_limit', None)
 
     rows = 0
     ckan = CKAN(**kwargs)
@@ -189,5 +188,5 @@ def update(endpoint, **kwargs):
         if err_limit and len(errors) >= err_limit:
             raise Exception(errors)
 
-    elapsed_time = ' ,'.join(gen_elapsed(timer(), start))
+    elapsed_time = ' ,'.join(fmt_elapsed(timer() - start))
     return {'rows_added': rows, 'errors': errors, 'elapsed_time': elapsed_time}

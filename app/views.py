@@ -113,8 +113,8 @@ def double(num):
     return jsonify(**resp)
 
 
-@blueprint.route('%s/delete/<base>/' % c.API_URL_PREFIX)
-def delete(base):
+@blueprint.route('%s/delete/<resource>/' % c.API_URL_PREFIX)
+def delete(resource):
     url = request.url.replace('delete/', '')
     cache.delete(url)
     return jsonify(result='Key: %s deleted' % url)
