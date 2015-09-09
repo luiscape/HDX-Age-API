@@ -48,27 +48,6 @@ def lorem():
     return jsonify(**resp)
 
 
-@blueprint.route('%s/test/' % c.API_URL_PREFIX)
-@blueprint.route('%s/test/<word>/' % c.API_URL_PREFIX)
-def test(word=''):
-    kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
-
-    with app.app_context():
-        if kwargs.pop('sync', False):
-            resp = {'result': utils.count_letters(word)}
-        else:
-            job = q.enqueue(utils.count_letters, word)
-            base = 'http://%(HOST)s:%(PORT)s%(API_URL_PREFIX)s' % app.config
-            result_url = '%s/result/%s' % (base, job.id)
-
-            resp = {
-                'job_id': job.id,
-                'job_status': job.get_status(),
-                'result_url': result_url}
-
-        return jsonify(**resp)
-
-
 @blueprint.route('%s/update/' % c.API_URL_PREFIX)
 @blueprint.route('%s/update/<pid>/' % c.API_URL_PREFIX)
 def update(pid=None):

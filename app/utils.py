@@ -191,11 +191,3 @@ def update(endpoint, **kwargs):
 
     elapsed_time = ' ,'.join(gen_elapsed(timer(), start))
     return {'rows_added': rows, 'errors': errors, 'elapsed_time': elapsed_time}
-
-
-def count_letters(word=''):
-    return len(word)
-
-
-def expensive_func(x):
-    return x * 10
