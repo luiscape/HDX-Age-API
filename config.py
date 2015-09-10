@@ -49,7 +49,7 @@ class Config(object):
     ERR_LIMIT = 10
     ROW_LIMIT = 0
     TIMEOUT = 60 * 60 * 3  # 3 hours (in seconds)
-    TTL = TIMEOUT * 2
+    RESULT_TTL = TIMEOUT * 2
 
 
 class Production(Config):
@@ -75,7 +75,7 @@ class Development(Config):
     ROW_LIMIT = 50
     MEMCACHE = False
     TIMEOUT = 60 * 10
-    TTL = TIMEOUT * 2
+    RESULT_TTL = TIMEOUT * 2
 
 
 class Test(Config):
@@ -84,4 +84,4 @@ class Test(Config):
     TESTING = True
     MEMCACHE = False
     TIMEOUT = 30
-    TTL = 60
+    RESULT_TTL = 60
