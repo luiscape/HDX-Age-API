@@ -7,6 +7,7 @@
 """
 
 from flask.json import loads, dumps
+
 from app import create_app
 
 initialized = False

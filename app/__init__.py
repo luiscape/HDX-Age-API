@@ -21,11 +21,11 @@ from functools import partial
 from inspect import isclass, getmembers
 from operator import itemgetter
 from os import getenv
+
 from savalidation import ValidationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from flask import Flask
-
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.restless import APIManager
 from flask.ext.cache import Cache
