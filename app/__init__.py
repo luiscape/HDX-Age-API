@@ -83,14 +83,16 @@ def create_app(config_mode=None, config_file=None):
     else:
         app.config.from_envvar('APP_SETTINGS', silent=True)
 
+    memcached_servers = getenv('MEMCACHIER_SERVERS', getenv('MEMCACHE_SERVERS'))
+
     if app.config['PROD'] and app.config['MEMCACHE']:
         cache_config['CACHE_TYPE'] = 'spreadsaslmemcachedcache'
-        cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHIER_SERVERS')]
+        cache_config['CACHE_MEMCACHED_SERVERS'] = [memcached_servers]
         cache_config['CACHE_MEMCACHED_USERNAME'] = getenv('MEMCACHIER_USERNAME')
         cache_config['CACHE_MEMCACHED_PASSWORD'] = getenv('MEMCACHIER_PASSWORD')
     elif app.config['MEMCACHE']:
         cache_config['CACHE_TYPE'] = 'memcached'
-        cache_config['CACHE_MEMCACHED_SERVERS'] = [getenv('MEMCACHE_SERVERS')]
+        cache_config['CACHE_MEMCACHED_SERVERS'] = [memcached_servers]
     else:
         cache_config['CACHE_TYPE'] = 'simple'
 
