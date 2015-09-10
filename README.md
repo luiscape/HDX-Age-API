@@ -79,7 +79,7 @@ curl http://localhost:3000/v1/status/
     "online": "True",
     "message": "Service for checking and updating HDX dataset ages.",
     "CKAN_instance": "https://data.hdx.rwlabs.org",
-    "version": "0.15.0",
+    "version": "0.5.2",
     "repository": "https://github.com/reubano/hdx-age-api"
 }
 ```
