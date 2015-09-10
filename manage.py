@@ -70,10 +70,14 @@ def lint(file):
 
 
 @manager.option('-w', '--where', help='Requirement file', default=None)
-def test(where):
+@manager.option(
+    '-x', '--stop', help='Stop after first error', action='store_true')
+def test(where, stop=False):
     """Run nose tests"""
-    cmd = "nosetests -xvw %s" % where if where else "nosetests -xv"
-    return call(cmd, shell=True)
+    nose = "python `which nosetests`"
+    opts = 'xv' if stop else 'v'
+    opts += 'w %s' % where if where else ''
+    return call("%s -%s" % (nose, opts), shell=True)
 
 
 @manager.command

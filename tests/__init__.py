@@ -5,17 +5,26 @@
 
     Provides application unit tests
 """
+from __future__ import (
+    absolute_import, division, print_function, with_statement,
+    unicode_literals)
 
+from functools import partial
 from flask.json import loads, dumps
 
 from app import create_app
 
-initialized = False
-app = None
-client = None
 jsonx = None
+client = None
 base = None
-endpoint = None
+app = None
+
+
+def get_globals():
+    global app
+    global client
+
+    return app, client
 
 
 def setup_package():
@@ -24,7 +33,6 @@ def setup_package():
     global app
     global client
     global jsonx
-    global endpoint
     global base
 
     app = create_app(config_mode='Test')
@@ -52,58 +60,34 @@ def teardown_package():
 class APIHelper:
     global client
     global base
-    global endpoint
 
     json = 'application/json'
 
-    def get_data(self, table, id=None, query=None):
+    def get(self, resource, id=None, query=None):
         # returns status_code 200
+        url = '%s%s/' % (base, resource)
+        url += '%s/' % id if id else ''
+        get = partial(client.get, url, content_type=self.json)
+        return get(q=query) if query else get()
 
-        if id:
-            url = base + table + '/' + id
-        else:
-            url = base + table
-
-        if query:
-            r = client.get(url, content_type=self.json, q=query)
-        else:
-            r = client.get(url, content_type=self.json)
-
-        return r
-
-    def delete_data(self, table, id):
+    def delete(self, resource, id):
         # returns status_code 204
-        url = '%s/%s/%s' % (endpoint, table, id)
-        r = client.delete(url, content_type=self.json)
-        return r
+        url = '%s%s/%s/' % (base, resource, id)
+        return client.delete(url, content_type=self.json)
 
-    def post_data(self, data, table):
+    def post(self, data, resource):
         # returns status_code 201
-        url = base + table
-        r = client.post(url, data=dumps(data), content_type=self.json)
-        return r
+        url = '%s%s/' % (base, resource)
+        return client.post(url, data=dumps(data), content_type=self.json)
 
-    def patch_data(self, data, table, id=None, query=None):
+    def patch(self, data, resource, id=None, query=None):
         # returns status_code 200 or 201
-        if id:
-            url = base + table + '/' + id
-        else:
-            url = base + table
+        url = '%s%s/' % (base, resource)
+        url += '%s/' % id if id else ''
+        patch = partial(
+            client.patch, url, data=dumps(data), content_type=self.json)
 
-        if query:
-            r = client.patch(
-                url, data=dumps(data), content_type=self.json, q=query)
-        else:
-            r = client.patch(url, data=dumps(data), content_type=self.json)
+        return patch(q=query) if query else patch()
 
-        return r
-
-    def get_num_results(self, table):
-        r = self.get_data(table)
-        loaded = loads(r.data)
-        return loaded['num_results']
-
-    def get_type(self, table, id=1):
-        r = self.get_data(table, id)
-        loaded = loads(r.data)
-        return loaded['type']['id']
+    def get_json(self, r):
+        return loads(r.data)
