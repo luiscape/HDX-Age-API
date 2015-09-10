@@ -62,6 +62,18 @@ class CustomEncoder(JSONEncoder):
 
 
 def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
+    """ Creates a jsonified response. Necessary because the default
+    flask.jsonify doesn't correctly handle sets, dates, or iterators
+
+    Args:
+        status (int): The status code (default: 200).
+        indent (int): Number of spaces to indent (default: 2).
+        sort_keys (bool): Sort response dict by keys (default: True).
+        kwargs (dict): The response to jsonify.
+
+    Returns:
+        (obj): Flask response
+    """
     options = {'indent': indent, 'sort_keys': sort_keys, 'ensure_ascii': False}
     response = make_response(dumps(kwargs, cls=CustomEncoder, **options))
     response.headers['Content-Type'] = 'application/json; charset=utf-8'
@@ -71,6 +83,21 @@ def jsonify(status=200, indent=2, sort_keys=True, **kwargs):
 
 
 def fmt_elapsed(elapsed):
+    """ Generates a human readable representation of elapsed time.
+
+    Args:
+        elapsed (float): Number of elapsed seconds.
+
+    Yields:
+        (str): Elapsed time value and unit
+
+    Examples:
+        >>> formatted = fmt_elapsed(1000)
+        >>> formatted.next()
+        u'16 minutes'
+        >>> formatted.next()
+        u'40 seconds'
+    """
     # http://stackoverflow.com/a/11157649/408556
     # http://stackoverflow.com/a/25823885/408556
     attrs = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
@@ -84,6 +111,15 @@ def fmt_elapsed(elapsed):
 
 
 def patch_or_post(endpoint, record):
+    """ Updates a record via it's REST API if it exist, otherwise creates it.
+
+    Args:
+        endpoint (str): The api resource url.
+        record (dict): The record data.
+
+    Returns:
+        (obj): requests response
+    """
     url = '%s/%s' % (endpoint, record['dataset_id'])
     headers = {'Content-Type': 'application/json'}
     data = dumps(record)
@@ -97,10 +133,29 @@ def patch_or_post(endpoint, record):
 
 
 def make_cache_key(*args, **kwargs):
+    """ Creates a memcache key for a url and its query parameters
+
+    Returns:
+        (obj): Flask request url
+    """
     return request.url
 
 
 def parse(string):
+    """ Parses a string into an equivalent Python object
+
+    Args:
+        string (str): The string to parse
+
+    Returns:
+        (obj): equivalent Python object
+
+    Examples:
+        >>> parse('True')
+        True
+        >>> parse('{"key": "value"}')
+        {'key': 'value'}
+    """
     string = string.encode(encoding)
 
     if string.lower() in {'true', 'false'}:
@@ -113,6 +168,16 @@ def parse(string):
 
 
 def gen_data(ckan, pids, mock_freq=False):
+    """ Generates data about a ckan package.
+
+    Args:
+        ckan (obj): A `CKAN` instance.
+        pids (List[str]): List of package ids.
+        mock_freq (bool): Mock the `frequency` field (default: False)?
+
+    Yields:
+        (dict): The package data.
+    """
     for pid in pids:
         package = ckan.package_show(id=pid)
         resources = package['resources']
@@ -153,6 +218,21 @@ def gen_data(ckan, pids, mock_freq=False):
 
 
 def update(endpoint, **kwargs):
+    """ Updates the database
+
+    Args:
+        endpoint (str): The api resource url.
+        kwargs (dict): passed to CKAN constructor.
+
+    Kwargs:
+        chunk_size (int): Number of rows to process at a time (default: All).
+        row_limit (int): Total number of rows to process (default: All).
+        err_limit (int): Number of errors to encounter before failing
+            (default: Inf).
+
+    Returns:
+        (dict): Update details
+    """
     start = timer()
     pid = kwargs.pop('pid', None)
     chunk_size = kwargs.pop('chunk_size', 0)

@@ -27,6 +27,8 @@ blueprint = Blueprint('blueprint', __name__)
 @blueprint.route('%s/status/' % c.API_URL_PREFIX)
 @cache.cached(timeout=c.CACHE_TIMEOUT, key_prefix=make_cache_key)
 def status():
+    """ Displays the current status
+    """
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     ckan = CKAN(**kwargs)
 
@@ -44,6 +46,8 @@ def status():
 @blueprint.route('%s/lorem/' % c.API_URL_PREFIX)
 @cache.cached(timeout=c.CACHE_TIMEOUT, key_prefix=make_cache_key)
 def lorem():
+    """ Displays random loremipsum text.
+    """
     resp = {'result': get_sentences(1)[0]}
     return jsonify(**resp)
 
@@ -51,6 +55,11 @@ def lorem():
 @blueprint.route('%s/update/' % c.API_URL_PREFIX)
 @blueprint.route('%s/update/<pid>/' % c.API_URL_PREFIX)
 def update(pid=None):
+    """ Updates the database
+
+    Args:
+        pid (str): Package id of the package to update.
+    """
     kwargs = {k: parse(v) for k, v in request.args.to_dict().items()}
     sync = kwargs.pop('sync', False)
     whitelist = [
@@ -81,6 +90,11 @@ def update(pid=None):
 
 @blueprint.route('%s/result/<jid>/' % c.API_URL_PREFIX)
 def result(jid):
+    """ Displays a job result.
+
+    Args:
+        jid (str): The job id.
+    """
     job = q.fetch_job(jid)
     statuses = {
         'queued': 202,
@@ -109,12 +123,23 @@ def result(jid):
 @blueprint.route('%s/double/<num>/' % c.API_URL_PREFIX)
 @cache.memoize(timeout=c.CACHE_TIMEOUT)
 def double(num):
+    """ Displays the double of a given number. Included as an example of the
+    `cache.memoize` decorator.
+
+    Args:
+        num (int): The number to double.
+    """
     resp = {'result': 2 * num}
     return jsonify(**resp)
 
 
 @blueprint.route('%s/delete/<resource>/' % c.API_URL_PREFIX)
 def delete(resource):
+    """ Deletes the cache of a given resource
+
+    Args:
+        resource (str): The resource to delete.
+    """
     url = request.url.replace('delete/', '')
     cache.delete(url)
     return jsonify(result='Key: %s deleted' % url)
@@ -122,5 +147,7 @@ def delete(resource):
 
 @blueprint.route('%s/reset/' % c.API_URL_PREFIX)
 def reset():
+    """ Deletes the entire cache
+    """
     cache.clear()
     return jsonify(result='Caches reset')

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    app.tests.test_site
-    ~~~~~~~~~~~~~~~~~~~
+    tests.test_site
+    ~~~~~~~~~~~~~~~
 
     Provides unit tests for the website.
 """

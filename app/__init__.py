@@ -56,6 +56,21 @@ def _get_tables():
 
 
 def create_app(config_mode=None, config_file=None):
+    """ Creates the Flask application
+
+    Kwargs:
+        config_mode (str): The configuration mode. Must be a `class` in
+            `config.py`. One of ('Production', 'Development', 'Test',
+            'Docker')
+        config_file (str): The configuration file.
+
+    Returns:
+        (obj): Flask application
+
+    Examples:
+        >>> create_app('Test')
+        <Flask 'app'>
+    """
     app = Flask(__name__)
     app.register_blueprint(blueprint)
     mgr = APIManager(app, flask_sqlalchemy_db=db)
@@ -96,7 +111,8 @@ def create_app(config_mode=None, config_file=None):
         'max_results_per_page': app.config['API_MAX_RESULTS_PER_PAGE'],
         'url_prefix': app.config['API_URL_PREFIX']}
 
-    # Create API endpoints (available at /<tablename>)
+    # Create API endpoints from `models.py`. Each model is available at
+    # the endpoint `/<tablename>`.
     create_api = partial(mgr.create_api, **kwargs)
 
     with app.app_context():
