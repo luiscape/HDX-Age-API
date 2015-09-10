@@ -142,7 +142,7 @@ def cleardb():
 
 
 @manager.command
-def resetdb():
+def setup():
     """Removes all content from database and creates new tables"""
 
     with app.app_context():
