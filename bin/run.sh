@@ -10,4 +10,4 @@ make worker
 # SQLite database.
 #
 source venv/bin/activate
-manage serve
+manage -m Docker serve

@@ -15,4 +15,4 @@ pip install requests[security]
 # Create database.
 #
 mkdir data
-python manage.py createdb
+manage -m Docker createdb

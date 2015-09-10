@@ -1,5 +1,5 @@
 import os
-from os import path as p
+from os import path as p, getenv
 
 # module vars
 _basedir = p.dirname(__file__)
@@ -18,20 +18,20 @@ class Config(object):
     # WARNING: if running on a a staging server, you MUST set the 'STAGE' env
     # heroku config:set STAGE=true --remote staging
     ###########################################################################
-    stage = os.environ.get('STAGE', False)
+    stage = getenv('STAGE', False)
     end = '-stage' if stage else ''
 
     ADMINS = frozenset([__YOUR_EMAIL__])
     HOST = '127.0.0.1'
-    PORT = int(os.environ.get('PORT', 3000))
+    PORT = int(getenv('PORT', 3000))
 
     # TODO: programatically get app name
     heroku_server = '%s%s.herokuapp.com' % (__APP_NAME__, end)
 
-    if os.environ.get('DATABASE_URL', False):
+    if getenv('DATABASE_URL', False):
         SERVER_NAME = heroku_server
 
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'key')
+    SECRET_KEY = getenv('SECRET_KEY', 'key')
     REPO = 'https://github.com/%s/%s' % (__USER__, __APP_NAME__)
     API_METHODS = ['GET', 'POST', 'DELETE', 'PATCH', 'PUT']
     API_ALLOW_FUNCTIONS = True
@@ -49,12 +49,12 @@ class Config(object):
     ERR_LIMIT = 10
     ROW_LIMIT = 0
     TIMEOUT = 60 * 60 * 3  # 3 hours (in seconds)
-    TTL = TIMEOUT * 2
+    RESULT_TTL = TIMEOUT * 2
 
 
 class Production(Config):
     defaultdb = 'postgres://%s@localhost/app' % __USER__
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', defaultdb)
+    SQLALCHEMY_DATABASE_URI = getenv('DATABASE_URL', defaultdb)
     HOST = '0.0.0.0'
     PROD = True
 
@@ -75,7 +75,7 @@ class Development(Config):
     ROW_LIMIT = 50
     MEMCACHE = False
     TIMEOUT = 60 * 10
-    TTL = TIMEOUT * 2
+    RESULT_TTL = TIMEOUT * 2
 
 
 class Test(Config):
@@ -84,4 +84,4 @@ class Test(Config):
     TESTING = True
     MEMCACHE = False
     TIMEOUT = 30
-    TTL = 60
+    RESULT_TTL = 60
