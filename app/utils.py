@@ -190,7 +190,7 @@ def gen_data(ckan, pids, mock_freq=False):
         if mock_freq:
             frequency = choice(breakpoints.keys())
         else:
-            frequency = int(package.get('data_update_frequency'))
+            frequency = int(package.get('data_update_frequency') or 0)
 
         breaks = breakpoints.get(frequency)
         last_updated = max(it.imap(ckan.get_update_date, resources))
