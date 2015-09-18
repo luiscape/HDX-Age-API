@@ -5,5 +5,5 @@
 # as daemon.
 #
 source venv/bin/activate
-screen -S worker -d -m python worker.py
+screen -S worker -d -m -L python worker.py
 screen -ls
