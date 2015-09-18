@@ -1,4 +1,3 @@
-import os
 from os import path as p, getenv
 
 # module vars
