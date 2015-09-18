@@ -22,7 +22,6 @@ __YOUR_EMAIL__ = 'reubano@gmail.com'
 __YOUR_WEBSITE__ = 'http://%s.github.io' % __USER__
 
 
-# configuration
 class Config(object):
     ###########################################################################
     # WARNING: if running on a a staging server, you MUST set the 'STAGE' env
