@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    config
+    ~~~~~~
+
+    Provides the flask configuration
+"""
+from __future__ import (
+    absolute_import, division, print_function, with_statement,
+    unicode_literals)
+
 from os import path as p, getenv
 
 # module vars
