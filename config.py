@@ -1,4 +1,14 @@
-import os
+# -*- coding: utf-8 -*-
+"""
+    config
+    ~~~~~~
+
+    Provides the flask configuration
+"""
+from __future__ import (
+    absolute_import, division, print_function, with_statement,
+    unicode_literals)
+
 from os import path as p, getenv
 
 # module vars
@@ -12,7 +22,6 @@ __YOUR_EMAIL__ = 'reubano@gmail.com'
 __YOUR_WEBSITE__ = 'http://%s.github.io' % __USER__
 
 
-# configuration
 class Config(object):
     ###########################################################################
     # WARNING: if running on a a staging server, you MUST set the 'STAGE' env

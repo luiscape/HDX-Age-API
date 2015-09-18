@@ -79,7 +79,7 @@ def update(pid=None):
             resp = {'result': utils.update(endpoint, **opts)}
         else:
             job = q.enqueue(utils.update, endpoint, **opts)
-            result_url = '%s/result/%s/' % (endpoint, job.id)
+            result_url = '%s/result/%s/' % (base, job.id)
 
             resp = {
                 'job_id': job.id,
