@@ -7,7 +7,7 @@ FROM ubuntu:latest
 
 MAINTAINER Luis Capelo <capelo@un.org>
 
-USER root
+# USER root
 
 #
 # Installing Python 2.7.10
@@ -19,15 +19,6 @@ RUN \
   && add-apt-repository ppa:fkrull/deadsnakes \
   && apt-get -y install wget git screen \
   && apt-get -y install python2.7 python2.7-dev python-dev python-distribute python-pip python-virtualenv
-
-#
-# Upgrading pip.
-#
-RUN \
-  wget https://bootstrap.pypa.io/get-pip.py \
-  && python get-pip.py \
-  && pip --version \
-  && python --version
 
 #
 # Clone app and install dependencies.
