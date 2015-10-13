@@ -31,7 +31,7 @@ class Config(object):
     end = '-stage' if stage else ''
 
     ADMINS = frozenset([__YOUR_EMAIL__])
-    HOST = '127.0.0.1'
+    HOST = '0.0.0.0'
     PORT = int(getenv('PORT', 3000))
 
     # TODO: programatically get app name

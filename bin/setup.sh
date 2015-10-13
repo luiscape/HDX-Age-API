@@ -11,8 +11,3 @@ pip install -r requirements.txt
 easy_install --upgrade requests
 pip install requests[security]
 
-#
-# Create database.
-#
-mkdir data
-manage -m Docker createdb
