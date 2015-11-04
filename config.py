@@ -71,7 +71,7 @@ class Production(Config):
 class Docker(Config):
     database_path = p.join(_basedir, 'data', 'app.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % database_path
-    HOST = '127.0.0.1'
+    HOST = '0.0.0.0'
     PROD = True
     MEMCACHE = False
 
